@@ -1430,7 +1430,7 @@ if (settingsBtn) {
     settingsBtn.addEventListener('click', () => {
         // 如果是单词列表页面，跳转到首页
         if (isWordsListPage) {
-            window.location.href = 'Index.html';
+            window.location.href = 'index.html';
             return;
         }
         
