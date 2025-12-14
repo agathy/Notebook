@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多语言单词笔记本</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 消息提示 -->
+    <div id="message" class="message"></div>
+    
+    <!-- 浮动单词卡片 -->
+    <div id="word-card-overlay" class="word-card-overlay">
+        <div id="word-card" class="word-card">
+            <!-- 卡片内容将通过JavaScript动态生成 -->
+        </div>
+    </div>
+    
+    <!-- 语言选择页面 -->
+    <div class="container" id="language-setup">
+        <div class="setup-header">
+            <h1>多语言单词笔记本</h1>
+            <p>首先选择您的母语和要学习的语言</p>
+        </div>
+        
+        <!-- 母语选择 -->
+        <div class="form-group">
+            <label>选择您的母语</label>
+            <div class="language-options" id="native-language-options">
+                <!-- 语言选项将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 学习语言选择 -->
+        <div class="form-group">
+            <label>选择要学习的语言（至少选择一种）</label>
+            <div class="language-options" id="learning-language-options">
+                <!-- 语言选项将通过JS动态生成 -->
+            </div>
+            
+            <div id="selected-languages-container" style="margin-top: 20px;">
+                <label>已选语言：</label>
+                <div class="selected-languages" id="selected-languages">
+                    <div style="color: #94a3b8; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center;">
+                        请从上方选择语言
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button id="start-app" class="btn btn-primary">开始使用</button>
+    </div>
+    
+    <!-- 主应用页面 -->
+    <div class="container" id="main-app">
+        <!-- 顶部栏 -->
+        <header>
+            <div class="app-title">多语言单词笔记本</div>
+            <div class="user-languages" id="user-languages-display">
+                <!-- 用户选择的语言将显示在这里 -->
+            </div>
+            <button class="settings-btn" id="settings-btn" title="设置">
+                <i class="fas fa-cog"></i>
+            </button>
+        </header>
+        
+        <!-- 功能按钮区域 -->
+        <div class="home-actions">
+            <!-- 添加单词按钮 -->
+            <div class="home-action-card">
+                <button class="home-action-button" id="big-add-btn">
+                    <div class="home-action-icon add-action-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="home-action-title">添加新单词</div>
+                    <div class="home-action-description">添加新的多语言单词到单词本</div>
+                </button>
+            </div>
+            
+            <!-- 进入单词本按钮 -->
+            <div class="home-action-card">
+                <a href="WordsList.html" class="home-action-button">
+                    <div class="home-action-icon words-action-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="home-action-title">我的单词本</div>
+                    <div class="home-action-description" id="home-word-count">查看和管理所有单词</div>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加/编辑单词模态框 -->
+    <div id="add-word-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal">&times;</button>
+            
+            <h2 class="modal-title" id="modal-title">添加新单词</h2>
+            <p class="modal-description" id="modal-description">为每个语言输入单词，可以添加母语注释、图片和标签</p>
+            
+            <form id="add-word-form">
+                <!-- 母语注释（可选） -->
+                <div class="form-group">
+                    <label for="native-note">母语注释（可选）</label>
+                    <input type="text" id="native-note" class="form-control" placeholder="输入母语注释（例如：苹果、汽车等）">
+                </div>
+                
+                <div class="form-row">
+                    <!-- 图片 -->
+                    <div class="form-group">
+                        <label for="image-url">图片（可选）</label>
+                        <div class="image-input-container">
+                            <input type="text" id="image-url" class="form-control" placeholder="输入图片URL地址">
+                            <div class="image-upload-divider">或</div>
+                            <div class="image-upload-buttons">
+                                <label for="image-upload" class="image-upload-label">
+                                    <i class="fas fa-upload"></i>
+                                    <span>上传图片</span>
+                                </label>
+                                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                                <button type="button" id="camera-btn" class="image-upload-label camera-btn">
+                                    <i class="fas fa-camera"></i>
+                                    <span>拍照</span>
+                                </button>
+                                <button type="button" id="draw-btn" class="image-upload-label draw-btn">
+                                    <i class="fas fa-paint-brush"></i>
+                                    <span>手绘</span>
+                                </button>
+                            </div>
+                            <button type="button" id="clear-image-btn" class="clear-image-btn" style="display: none;">
+                                <i class="fas fa-times"></i>
+                                <span>清除图片</span>
+                            </button>
+                        </div>
+                        <img id="image-preview" class="image-preview" alt="图片预览">
+                    </div>
+                    
+                    <!-- 标签 -->
+                    <div class="form-group">
+                        <label for="tags-input">标签（可选）</label>
+                        <div class="tags-input-container">
+                            <div class="tags-input" id="tags-input-container">
+                                <!-- 标签将通过JavaScript动态生成 -->
+                                <input type="text" id="tag-input" class="tag-input" placeholder="输入标签，按回车添加">
+                            </div>
+                            <div class="tags-suggestions" id="tags-suggestions">
+                                <!-- 标签建议将通过JavaScript动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 语言输入区域 -->
+                <div id="translations-container">
+                    <div class="language-inputs" id="language-inputs-container">
+                        <!-- 语言输入框将动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 备注 -->
+                <div class="form-group">
+                    <label for="notes">备注（可选）</label>
+                    <textarea id="notes" class="form-control" placeholder="输入任何额外的注释、例句或记忆技巧"></textarea>
+                </div>
+                
+                <!-- 表单操作按钮 -->
+                <div class="form-actions">
+                    <button type="button" id="reset-form" class="btn btn-secondary">清空</button>
+                    <button type="submit" class="btn btn-primary" id="save-word-btn">保存单词</button>
+                    <button type="button" id="delete-word-btn" class="btn btn-danger" style="display: none;">删除单词</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 删除确认模态框 -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-delete-modal">&times;</button>
+            
+            <h2 class="modal-title">确认删除</h2>
+            
+            <div class="delete-confirm-text" id="delete-confirm-text">
+                您确定要删除这个单词吗？
+            </div>
+            
+            <div class="delete-actions">
+                <button type="button" id="cancel-delete" class="btn btn-secondary">取消</button>
+                <button type="button" id="confirm-delete" class="btn btn-danger">删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 拍照模态框 -->
+    <div id="camera-modal" class="modal">
+        <div class="modal-content camera-modal-content">
+            <button class="close-modal" id="close-camera-modal">&times;</button>
+            <h2 class="modal-title">拍照</h2>
+            <div class="camera-container">
+                <video id="camera-video" autoplay playsinline></video>
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+            </div>
+            <div class="camera-actions">
+                <button type="button" id="capture-btn" class="btn btn-primary">
+                    <i class="fas fa-camera"></i> 拍照
+                </button>
+                <button type="button" id="retake-btn" class="btn btn-secondary" style="display: none;">
+                    <i class="fas fa-redo"></i> 重拍
+                </button>
+                <button type="button" id="use-photo-btn" class="btn btn-primary" style="display: none;">
+                    <i class="fas fa-check"></i> 使用照片
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 手绘模态框 -->
+    <div id="draw-modal" class="modal">
+        <div class="modal-content draw-modal-content">
+            <button class="close-modal" id="close-draw-modal">&times;</button>
+            <h2 class="modal-title">手绘图片</h2>
+            <div class="draw-toolbar">
+                <div class="draw-tool-group">
+                    <label>画笔颜色：</label>
+                    <input type="color" id="draw-color" value="#000000">
+                </div>
+                <div class="draw-tool-group">
+                    <label>画笔大小：</label>
+                    <input type="range" id="draw-size" min="1" max="20" value="3">
+                    <span id="draw-size-value">3</span>
+                </div>
+                <button type="button" id="clear-canvas-btn" class="btn btn-secondary">
+                    <i class="fas fa-eraser"></i> 清空画布
+                </button>
+            </div>
+            <div class="draw-container">
+                <canvas id="draw-canvas"></canvas>
+            </div>
+            <div class="draw-actions">
+                <button type="button" id="use-drawing-btn" class="btn btn-primary">
+                    <i class="fas fa-check"></i> 使用手绘
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
