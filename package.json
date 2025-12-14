@@ -1,0 +1,13 @@
+{
+  "name": "word-persistence-fix",
+  "version": "1.0.0",
+  "description": "Property-based tests for word persistence fix",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "test:watch": "node --test --watch test/*.test.js"
+  },
+  "devDependencies": {
+    "fast-check": "^3.15.0"
+  }
+}

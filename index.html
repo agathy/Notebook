@@ -101,10 +101,11 @@
             <p class="modal-description" id="modal-description">为每个语言输入单词，可以添加母语注释、图片和标签</p>
             
             <form id="add-word-form">
-                <!-- 母语注释（可选） -->
-                <div class="form-group">
-                    <label for="native-note">母语注释（可选）</label>
-                    <input type="text" id="native-note" class="form-control" placeholder="输入母语注释（例如：苹果、汽车等）">
+                <!-- 语言输入区域 -->
+                <div id="translations-container">
+                    <div class="language-inputs" id="language-inputs-container">
+                        <!-- 语言输入框将动态生成 -->
+                    </div>
                 </div>
                 
                 <div class="form-row">
@@ -119,11 +120,7 @@
                                     <i class="fas fa-upload"></i>
                                     <span>上传图片</span>
                                 </label>
-                                <input type="file" id="image-upload" accept="image/*" style="display: none;">
-                                <button type="button" id="camera-btn" class="image-upload-label camera-btn">
-                                    <i class="fas fa-camera"></i>
-                                    <span>拍照</span>
-                                </button>
+                                <input type="file" id="image-upload" accept="image/*" capture="environment" style="display: none;">
                                 <button type="button" id="draw-btn" class="image-upload-label draw-btn">
                                     <i class="fas fa-paint-brush"></i>
                                     <span>手绘</span>
@@ -136,38 +133,34 @@
                         </div>
                         <img id="image-preview" class="image-preview" alt="图片预览">
                     </div>
-                    
-                    <!-- 标签 -->
-                    <div class="form-group">
-                        <label for="tags-input">标签（可选）</label>
-                        <div class="tags-input-container">
-                            <div class="tags-input" id="tags-input-container">
-                                <!-- 标签将通过JavaScript动态生成 -->
-                                <input type="text" id="tag-input" class="tag-input" placeholder="输入标签，按回车添加">
-                            </div>
-                            <div class="tags-suggestions" id="tags-suggestions">
-                                <!-- 标签建议将通过JavaScript动态生成 -->
-                            </div>
+                </div>
+                
+                <!-- 标签 -->
+                <div class="form-group">
+                    <label for="tags-input">标签（可选）</label>
+                    <div class="tags-input-container">
+                        <div class="tags-input" id="tags-input-container">
+                            <!-- 标签将通过JavaScript动态生成 -->
+                            <input type="text" id="tag-input" class="tag-input" placeholder="输入标签，按回车添加">
+                        </div>
+                        <div class="tags-suggestions" id="tags-suggestions">
+                            <!-- 标签建议将通过JavaScript动态生成 -->
                         </div>
                     </div>
                 </div>
                 
-                <!-- 语言输入区域 -->
-                <div id="translations-container">
-                    <div class="language-inputs" id="language-inputs-container">
-                        <!-- 语言输入框将动态生成 -->
-                    </div>
-                </div>
-                
-                <!-- 备注 -->
+                <!-- 母语注释（可选） -->
                 <div class="form-group">
-                    <label for="notes">备注（可选）</label>
-                    <textarea id="notes" class="form-control" placeholder="输入任何额外的注释、例句或记忆技巧"></textarea>
+                    <label for="native-note">母语注释（可选）</label>
+                    <input type="text" id="native-note" class="form-control" placeholder="输入母语注释（例如：苹果、汽车等）">
                 </div>
                 
                 <!-- 表单操作按钮 -->
                 <div class="form-actions">
                     <button type="button" id="reset-form" class="btn btn-secondary">清空</button>
+                    <button type="button" id="batch-add-btn" class="btn btn-secondary">
+                        <i class="fas fa-plus"></i> 继续添加
+                    </button>
                     <button type="submit" class="btn btn-primary" id="save-word-btn">保存单词</button>
                     <button type="button" id="delete-word-btn" class="btn btn-danger" style="display: none;">删除单词</button>
                 </div>

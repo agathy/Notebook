@@ -624,13 +624,13 @@ header {
 }
 
 .language-flag {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: white;
 }
@@ -799,13 +799,14 @@ header {
 }
 
 .card-translation-language {
-    font-weight: 600;
+    font-weight: 500;
     color: #475569;
+    font-size: 0.85rem;
 }
 
 .card-translation-text {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: #1e293b;
     margin-bottom: 5px;
 }
@@ -845,7 +846,8 @@ header {
     background-color: #dcfce7;
     border-radius: 10px;
     padding: 15px;
-    margin-bottom: 20px;
+    margin-top: 20px;
+    margin-bottom: 0;
 }
 
 .card-native-note-title {
@@ -1038,19 +1040,232 @@ textarea.form-control {
 .language-input-label {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     font-weight: 500;
     color: #475569;
 }
 
-.language-input-flag {
+.language-expand-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.language-expand-btn:hover {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.language-extra-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* 自动翻译的输入框样式 */
+.language-word-input.auto-translated {
+    background-color: #fef3c7;
+    border-color: #fde68a;
+    padding-right: 80px;
+}
+
+.language-input-group {
+    position: relative;
+}
+
+.language-word-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.language-word-input-wrapper .form-control {
+    flex: 1;
+}
+
+.word-input-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.play-audio-input-btn,
+.record-audio-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    padding: 0;
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.play-audio-input-btn:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+}
+
+.record-audio-btn {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.record-audio-btn:hover {
+    background-color: #fecaca;
+}
+
+.record-audio-btn.recording {
+    background-color: #dc2626;
+    color: white;
+    animation: recordingPulse 1s infinite;
+}
+
+@keyframes recordingPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.user-audio-badge-input {
+    font-size: 0.9rem;
+    margin-left: 2px;
+}
+
+.card-translation-text-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.card-translation-audio {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.play-audio-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    padding: 0;
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.play-audio-btn:hover {
+    background-color: #bae6fd;
+    transform: scale(1.1);
+}
+
+.user-audio-badge {
+    font-size: 0.85rem;
+}
+
+.auto-translate-actions {
+    position: absolute;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    z-index: 10;
+}
+
+.accept-translate-btn,
+.reject-translate-btn {
     width: 24px;
     height: 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.accept-translate-btn {
+    background-color: #10b981;
+    color: white;
+}
+
+.accept-translate-btn:hover {
+    background-color: #059669;
+    transform: scale(1.1);
+}
+
+.reject-translate-btn {
+    background-color: #ef4444;
+    color: white;
+}
+
+.reject-translate-btn:hover {
+    background-color: #dc2626;
+    transform: scale(1.1);
+}
+
+.language-word-input.auto-translated {
+    background-color: #fef3c7;
+    border-color: #fde68a;
+    padding-right: 70px;
+}
+
+.language-word-input.translation-accepted {
+    background-color: #d1fae5;
+    border-color: #10b981;
+    animation: acceptPulse 0.5s ease-out;
+}
+
+@keyframes acceptPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.language-input-flag {
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
+    font-size: 0.65rem;
     font-weight: 600;
     color: white;
 }
