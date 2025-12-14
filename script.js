@@ -267,13 +267,8 @@ function showMainApp() {
     // 更新用户语言显示
     updateUserLanguagesDisplay();
     
-    // 更新首页单词数量
-    updateHomeWordCount();
-    
-    // 如果当前页面是单词列表页面，加载单词列表
-    if (isWordsListPage) {
-        loadWords();
-    }
+    // 始终加载单词数据，无论当前页面是首页还是单词列表页面
+    loadWords();
     
     // 生成添加单词表单的语言输入框
     generateLanguageInputs();
@@ -353,11 +348,80 @@ function generateLanguageInputs() {
     });
 }
 
+// 验证单词数据结构和完整性
+function validateWordData(data) {
+    // 检查数据是否为数组
+    if (!Array.isArray(data)) {
+        console.warn('Word data is not an array, initializing empty collection');
+        return false;
+    }
+    
+    // 检查每个单词对象的基本结构
+    for (let i = 0; i < data.length; i++) {
+        const word = data[i];
+        
+        // 检查必需的字段
+        if (!word || typeof word !== 'object') {
+            console.warn(`Invalid word object at index ${i}, skipping validation`);
+            continue;
+        }
+        
+        // 检查ID字段
+        if (!word.id || typeof word.id !== 'string') {
+            console.warn(`Word at index ${i} missing or invalid ID`);
+            return false;
+        }
+        
+        // 检查translations字段
+        if (word.translations && !Array.isArray(word.translations)) {
+            console.warn(`Word at index ${i} has invalid translations structure`);
+            return false;
+        }
+        
+        // 验证translations数组中的对象
+        if (word.translations) {
+            for (let j = 0; j < word.translations.length; j++) {
+                const translation = word.translations[j];
+                if (!translation || typeof translation !== 'object') {
+                    console.warn(`Invalid translation at word ${i}, translation ${j}`);
+                    return false;
+                }
+                
+                // 检查language字段
+                if (!translation.language || typeof translation.language !== 'string') {
+                    console.warn(`Translation at word ${i}, translation ${j} missing language`);
+                    return false;
+                }
+            }
+        }
+        
+        // 检查tags字段（如果存在）
+        if (word.tags && !Array.isArray(word.tags)) {
+            console.warn(`Word at index ${i} has invalid tags structure`);
+            return false;
+        }
+        
+        // 检查创建时间字段
+        if (word.createdAt && typeof word.createdAt !== 'string') {
+            console.warn(`Word at index ${i} has invalid createdAt field`);
+            return false;
+        }
+    }
+    
+    console.log(`Validated ${data.length} words successfully`);
+    return true;
+}
+
 // 加载单词
 function loadWords() {
-    words = JSON.parse(localStorage.getItem('polyglotWords')) || [];
+    try {
+        words = JSON.parse(localStorage.getItem('polyglotWords')) || [];
+    } catch (e) {
+        console.error('解析单词数据失败:', e);
+        words = [];
+    }
     
-    // 更新首页单词数量
+    // 始终更新首页单词数量，无论当前页面是什么
     updateHomeWordCount();
     
     // 如果当前页面是单词列表页面，更新单词列表
@@ -2002,5 +2066,29 @@ if (useDrawingBtn) {
 
 // 初始化页面
 document.addEventListener('DOMContentLoaded', function() {
+    // 首先加载单词数据，确保在所有页面都有数据
+    loadWords();
+    
+    // 然后初始化语言选择
     initLanguageSelection();
+});
+
+// 确保在页面重新获得焦点时重新加载数据
+window.addEventListener('focus', function() {
+    console.log('Page gained focus, reloading word data');
+    loadWords();
+});
+
+// 确保在页面可见性变化时重新加载数据
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        console.log('Page became visible, reloading word data');
+        loadWords();
+    }
+});
+
+// 确保在页面显示时重新加载数据（处理浏览器前进/后退）
+window.addEventListener('pageshow', function(event) {
+    console.log('Page shown, reloading word data');
+    loadWords();
 });
