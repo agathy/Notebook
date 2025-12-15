@@ -3,3 +3,21 @@ bug
 
 task
 1、添加单词的图片要不要放到最上面
+
+
+sturcture
+js/
+├── modules/
+│   ├── config.js          // 常量配置和工具函数
+│   ├── userSettings.js    // 用户设置管理
+│   ├── wordManager.js     // 单词数据管理（CRUD、导入导出）
+│   ├── uiManager.js       // UI渲染和更新
+│   ├── audioManager.js    // 音频功能（TTS、录音、播放）
+│   ├── tagManager.js      // 标签管理
+│   ├── imageManager.js    // 图片处理（上传/拍照/手绘）
+│   ├── translateManager.js // 翻译功能
+│   └── modalManager.js    // 模态框管理
+├── eventHandlers.js       // 事件处理
+├── app.js                // 主应用入口
+└── polyfills.js          // 浏览器兼容性处理（可选）
+清按照这个结构重构我的个脚本,并先给出完整的app.js
