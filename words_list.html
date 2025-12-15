@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多语言单词笔记本</title>
+    <title>我的单词本 - 多语言单词笔记本</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -18,46 +18,15 @@
         </div>
     </div>
     
-    <!-- 语言选择页面 -->
-    <div class="container" id="language-setup">
-        <div class="setup-header">
-            <h1>多语言单词笔记本</h1>
-            <p>首先选择您的母语和要学习的语言</p>
-        </div>
-        
-        <!-- 母语选择 -->
-        <div class="form-group">
-            <label>选择您的母语</label>
-            <div class="language-options" id="native-language-options">
-                <!-- 语言选项将通过JS动态生成 -->
-            </div>
-        </div>
-        
-        <!-- 学习语言选择 -->
-        <div class="form-group">
-            <label>选择要学习的语言（至少选择一种）</label>
-            <div class="language-options" id="learning-language-options">
-                <!-- 语言选项将通过JS动态生成 -->
-            </div>
-            
-            <div id="selected-languages-container" style="margin-top: 20px;">
-                <label>已选语言：</label>
-                <div class="selected-languages" id="selected-languages">
-                    <div style="color: #94a3b8; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center;">
-                        请从上方选择语言
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <button id="start-app" class="btn btn-primary">开始使用</button>
-    </div>
-    
     <!-- 主应用页面 -->
     <div class="container" id="main-app">
         <!-- 顶部栏 -->
         <header>
-            <div class="app-title">多语言单词笔记本</div>
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>返回首页</span>
+            </a>
+            <div class="app-title">我的单词本</div>
             <div class="user-languages" id="user-languages-display">
                 <!-- 用户选择的语言将显示在这里 -->
             </div>
@@ -66,28 +35,70 @@
             </button>
         </header>
         
-        <!-- 功能按钮区域 -->
-        <div class="home-actions">
-            <!-- 添加单词按钮 -->
-            <div class="home-action-card">
-                <button class="home-action-button" id="big-add-btn">
-                    <div class="home-action-icon add-action-icon">
-                        <i class="fas fa-plus-circle"></i>
-                    </div>
-                    <div class="home-action-title">添加新单词</div>
-                    <div class="home-action-description">添加新的多语言单词到单词本</div>
-                </button>
+        <!-- 表格控制栏 -->
+        <div class="table-controls">
+            <div>
+                <div class="table-title">我的单词本</div>
+                <div class="word-count" id="word-count">0个单词</div>
             </div>
             
-            <!-- 进入单词本按钮 -->
-            <div class="home-action-card">
-                <a href="words_list.html" class="home-action-button">
-                    <div class="home-action-icon words-action-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="home-action-title">我的单词本</div>
-                    <div class="home-action-description" id="home-word-count">查看和管理所有单词</div>
-                </a>
+            <div class="filter-controls">
+                <!-- 标签筛选 -->
+                <div class="filter-group">
+                    <div class="filter-label">按标签筛选</div>
+                    <select id="tag-filter" class="filter-select">
+                        <option value="">所有单词</option>
+                        <!-- 标签选项将通过JavaScript动态生成 -->
+                    </select>
+                </div>
+                
+                <!-- 排序选项 -->
+                <div class="filter-group">
+                    <div class="filter-label">排序方式</div>
+                    <select id="sort-option" class="filter-select">
+                        <option value="newest">最新添加</option>
+                        <option value="oldest">最早添加</option>
+                        <option value="az">A-Z 字母顺序</option>
+                        <option value="za">Z-A 字母顺序</option>
+                    </select>
+                </div>
+                
+                <!-- 隐藏母语按钮 -->
+                <button class="toggle-native-btn" id="toggle-native-btn">
+                    <i class="fas fa-eye"></i>
+                    <span>显示母语注释</span>
+                </button>
+                
+                <!-- 导入导出按钮组 -->
+                <div class="import-export-group">
+                    <button class="import-export-btn export-btn" id="export-btn" title="导出单词本">
+                        <i class="fas fa-download"></i>
+                        <span>导出</span>
+                    </button>
+                    <label for="import-file" class="import-export-btn import-btn" title="导入单词本">
+                        <i class="fas fa-upload"></i>
+                        <span>导入</span>
+                    </label>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </div>
+        
+        <!-- 单词表格 -->
+        <div class="words-table-container">
+            <table class="words-table" id="words-table">
+                <thead>
+                    <!-- 表头将由JavaScript动态生成 -->
+                </thead>
+                <tbody id="words-table-body">
+                    <!-- 表格行将由JavaScript动态生成 -->
+                </tbody>
+            </table>
+            
+            <div id="empty-table" class="empty-table">
+                <i class="fas fa-book-open"></i>
+                <h3>单词本为空</h3>
+                <p>返回首页添加第一个单词</p>
             </div>
         </div>
     </div>
@@ -237,6 +248,7 @@
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js" defer></script>
 </body>
 </html>
+
