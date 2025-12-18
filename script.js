@@ -133,6 +133,200 @@ const clearCanvasBtn = document.getElementById('clear-canvas-btn');
 const useDrawingBtn = document.getElementById('use-drawing-btn');
 const closeDrawModalBtn = document.getElementById('close-draw-modal');
 const batchAddBtn = document.getElementById('batch-add-btn');
+// 视图切换功能
+const listViewBtn = document.getElementById('list-view-btn');
+const cardViewBtn = document.getElementById('card-view-btn');
+const listView = document.getElementById('list-view');
+const cardView = document.getElementById('card-view');
+const cardsStack = document.getElementById('cards-stack');
+const emptyCards = document.getElementById('empty-cards');
+const prevCardBtn = document.getElementById('prev-card-btn');
+const nextCardBtn = document.getElementById('next-card-btn');
+const currentCardIndexSpan = document.getElementById('current-card-index');
+const totalCardsSpan = document.getElementById('total-cards');
+
+let currentView = 'list';
+let currentCardIndex = 0;
+let filteredWords = [];
+
+// 初始化视图切换
+function initViewToggle() {
+    // 从localStorage加载用户偏好
+    const savedView = localStorage.getItem('wordbook-view');
+    if (savedView === 'cards') {
+        switchToCardView();
+    } else {
+        switchToListView();
+    }
+    
+    // 绑定按钮事件
+    listViewBtn.addEventListener('click', switchToListView);
+    cardViewBtn.addEventListener('click', switchToCardView);
+    prevCardBtn.addEventListener('click', showPrevCard);
+    nextCardBtn.addEventListener('click', showNextCard);
+}
+
+// 切换到列表视图
+function switchToListView() {
+    currentView = 'list';
+    listView.style.display = 'block';
+    cardView.style.display = 'none';
+    listViewBtn.classList.add('active');
+    cardViewBtn.classList.remove('active');
+    localStorage.setItem('wordbook-view', 'list');
+}
+
+// 切换到卡片堆视图
+function switchToCardView() {
+    currentView = 'cards';
+    listView.style.display = 'none';
+    cardView.style.display = 'flex';
+    listViewBtn.classList.remove('active');
+    cardViewBtn.classList.add('active');
+    localStorage.setItem('wordbook-view', 'cards');
+    renderCards();
+}
+
+// 渲染卡片堆
+function renderCards() {
+    if (!cardsStack) return;
+    
+    cardsStack.innerHTML = '';
+    
+    if (filteredWords.length === 0) {
+        emptyCards.style.display = 'flex';
+        cardsStack.style.display = 'none';
+        prevCardBtn.disabled = true;
+        nextCardBtn.disabled = true;
+        return;
+    }
+    
+    emptyCards.style.display = 'none';
+    cardsStack.style.display = 'flex';
+    
+    // 创建卡片
+    filteredWords.forEach((word, index) => {
+        const card = createCardElement(word, index);
+        cardsStack.appendChild(card);
+    });
+    
+    // 更新卡片计数器
+    updateCardCounter();
+    
+    // 显示当前卡片
+    showCard(currentCardIndex);
+}
+
+// 创建卡片元素
+function createCardElement(word, index) {
+    const card = document.createElement('div');
+    card.className = 'word-card-item';
+    card.style.display = index === currentCardIndex ? 'block' : 'none';
+    
+    const date = new Date(word.dateAdded);
+    const dateStr = date.toLocaleDateString('zh-CN');
+    
+    card.innerHTML = `
+        <div class="card-header">
+            <div class="card-tags-mini">
+                ${word.tags && word.tags.length > 0 ? 
+                    word.tags.slice(0, 2).map(tag => `<span class="card-tag-mini">${tag}</span>`).join('') : 
+                    '<span class="card-tag-mini">无标签</span>'}
+            </div>
+            <div class="card-date">${dateStr}</div>
+        </div>
+        <div class="card-content">
+            ${word.image ? `
+                <div class="card-image-container">
+                    <img src="${word.image}" alt="${word.nativeNote || '单词图片'}" class="card-image" loading="lazy">
+                </div>
+            ` : ''}
+            
+            <div class="card-translations">
+                ${word.translations.map(trans => `
+                    <div class="card-translation">
+                        <div class="card-lang">${trans.language}</div>
+                        <div class="card-word">${trans.word}</div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            ${word.nativeNote ? `
+                <div class="card-native-note">
+                    <div class="card-native-label">母语注释:</div>
+                    <div class="card-native-text">${word.nativeNote}</div>
+                </div>
+            ` : ''}
+            
+            ${word.tags && word.tags.length > 0 ? `
+                <div class="card-tags">
+                    ${word.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('')}
+                </div>
+            ` : ''}
+        </div>
+        <div class="card-actions">
+            <button class="card-action-btn edit" onclick="editWord('${word.id}')">
+                <i class="fas fa-edit"></i> 编辑
+            </button>
+            <button class="card-action-btn delete" onclick="confirmDelete('${word.id}')">
+                <i class="fas fa-trash"></i> 删除
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+// 显示指定卡片
+function showCard(index) {
+    const cards = document.querySelectorAll('.word-card-item');
+    cards.forEach((card, i) => {
+        card.style.display = i === index ? 'block' : 'none';
+    });
+    currentCardIndex = index;
+    updateCardCounter();
+    updateCardNavigation();
+}
+
+// 显示上一张卡片
+function showPrevCard() {
+    if (currentCardIndex > 0) {
+        showCard(currentCardIndex - 1);
+    }
+}
+
+// 显示下一张卡片
+function showNextCard() {
+    if (currentCardIndex < filteredWords.length - 1) {
+        showCard(currentCardIndex + 1);
+    }
+}
+
+// 更新卡片计数器
+function updateCardCounter() {
+    if (currentCardIndexSpan && totalCardsSpan) {
+        currentCardIndexSpan.textContent = currentCardIndex + 1;
+        totalCardsSpan.textContent = filteredWords.length;
+    }
+}
+
+// 更新卡片导航按钮状态
+function updateCardNavigation() {
+    if (prevCardBtn) prevCardBtn.disabled = currentCardIndex === 0;
+    if (nextCardBtn) nextCardBtn.disabled = currentCardIndex === filteredWords.length - 1;
+}
+
+// 在你的renderWordsTable函数中，更新filteredWords变量
+function renderWordsTable(words) {
+    filteredWords = words; // 保存当前显示的单词
+    // ... 原有的表格渲染逻辑 ...
+    
+    // 如果当前是卡片视图，也需要更新卡片
+    if (currentView === 'cards') {
+        renderCards();
+    }
+}
+
 
 // 显示消息
 function showMessage(text, type = 'success') {
@@ -664,6 +858,7 @@ function showWordCard(wordId) {
             </div>
         `;
     }
+    
     
     // 获取标签HTML
     let tagsHtml = '';
@@ -1219,6 +1414,10 @@ if (resetFormBtn) {
     });
 }
 
+// 当前视图模式
+let currentViewMode = 'table'; // 'table' 或 'card'
+
+
 // 删除单词按钮
 if (deleteWordBtn) {
     deleteWordBtn.addEventListener('click', function() {
@@ -1380,6 +1579,7 @@ if (batchAddBtn) {
 
 // 初始化页面
 document.addEventListener('DOMContentLoaded', function() {
+    initViewToggle();
     // 初始化单词管理器
     initWordManager({
         showMessage: showMessage,
