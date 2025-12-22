@@ -54,6 +54,8 @@ import {
     getShowNativeColumn,
     getSortOption
 } from './js/modules/wordManager.js';
+import { CardStackManager } from './js/modules/cardStackManager.js';
+import { performDataMigration } from './js/modules/dataMigration.js';
 
 // 语言配置
 const availableLanguages = [
@@ -71,7 +73,7 @@ let userSettings = {
 window.userSettings = userSettings;
 
 // 检测当前页面
-const isWordsListPage = window.location.pathname.includes('words-list.html');
+const isWordsListPage = window.location.pathname.includes('words_list.html');
 
 // DOM元素（可能为null，取决于当前页面）
 const messageEl = document.getElementById('message');
@@ -142,6 +144,15 @@ const cardViewBtn = document.getElementById('card-view-btn');
 const listViewContainer = document.getElementById('list-view');
 const cardViewContainer = document.getElementById('card-view');
 const cardsStack = document.getElementById('cards-stack');
+
+// 卡片控制按钮
+const prevCardBtn = document.getElementById('prev-card-btn');
+const nextCardBtn = document.getElementById('next-card-btn');
+const currentCardIndexEl = document.getElementById('current-card-index');
+const totalCardsEl = document.getElementById('total-cards');
+
+// 卡片堆管理器
+let cardStackManager = null;
 
 
 // 显示消息
@@ -247,25 +258,31 @@ function updateCardsView() {
     
     const filteredWords = getFilteredAndSortedWords();
     
-    // 清空现有卡片
-    cardsStack.innerHTML = '';
-    
-    if (filteredWords.length === 0) {
-        cardsStack.innerHTML = `
-            <div class="cards-empty">
-                <i class="fas fa-layer-group"></i>
-                <h3>暂无单词</h3>
-                <p>添加一些单词来查看卡片堆视图</p>
-            </div>
-        `;
-        return;
+    // 初始化卡片堆管理器（如果还没有初始化）
+    if (!cardStackManager) {
+        cardStackManager = new CardStackManager(cardsStack);
+        
+        // 设置卡片创建回调
+        cardStackManager.setOnCreateCard((wordData) => {
+            return createWordCard(wordData);
+        });
+        
+        // 设置卡片变化回调
+        cardStackManager.setOnCardChange((index, currentCard) => {
+            updateCardControls(index, cardStackManager.getTotalCards());
+        });
+        
+        // 暴露到全局作用域
+        window.cardStackManager = cardStackManager;
     }
     
-    // 生成卡片
-    filteredWords.forEach(word => {
-        const cardElement = createWordCard(word);
-        cardsStack.appendChild(cardElement);
-    });
+    // 更新卡片数据
+    cardStackManager.setCards(filteredWords);
+    
+    // 更新控制按钮
+    updateCardControls(0, filteredWords.length);
+    
+    console.log('updateCardsView completed, cardStackManager:', !!cardStackManager);
 }
 
 function createWordCard(word) {
@@ -349,6 +366,57 @@ function createWordCard(word) {
     });
     
     return card;
+}
+
+// 更新卡片控制按钮
+function updateCardControls(currentIndex, totalCards) {
+    if (!currentCardIndexEl || !totalCardsEl || !prevCardBtn || !nextCardBtn) return;
+    
+    console.log('Updating card controls:', { currentIndex, totalCards });
+    
+    // 更新计数器
+    currentCardIndexEl.textContent = totalCards > 0 ? currentIndex + 1 : 0;
+    totalCardsEl.textContent = totalCards;
+    
+    // 更新按钮状态
+    prevCardBtn.disabled = currentIndex <= 0;
+    nextCardBtn.disabled = currentIndex >= totalCards - 1;
+    
+    console.log('Button states:', { 
+        prevDisabled: prevCardBtn.disabled, 
+        nextDisabled: nextCardBtn.disabled 
+    });
+}
+
+// 卡片控制按钮事件
+function setupCardControls() {
+    if (prevCardBtn) {
+        prevCardBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Previous card button clicked, cardStackManager:', !!cardStackManager);
+            if (cardStackManager) {
+                console.log('Calling previousCard()');
+                cardStackManager.previousCard();
+            } else {
+                console.error('cardStackManager not initialized');
+            }
+        });
+    }
+    
+    if (nextCardBtn) {
+        nextCardBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Next card button clicked, cardStackManager:', !!cardStackManager);
+            if (cardStackManager) {
+                console.log('Calling nextCard()');
+                cardStackManager.nextCard();
+            } else {
+                console.error('cardStackManager not initialized');
+            }
+        });
+    }
 }
 
 // 更新单词表格
@@ -1565,6 +1633,9 @@ if (batchAddBtn) {
 
 // 初始化页面
 document.addEventListener('DOMContentLoaded', function() {
+    // 执行数据迁移检查
+    performDataMigration();
+    
     // 初始化单词管理器
     initWordManager({
         showMessage: showMessage,
@@ -1606,6 +1677,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // 回调函数
         showMessage: showMessage
     });
+    
+    // 初始化卡片控制
+    setupCardControls();
 });
 
 // 确保在页面重新获得焦点时重新加载数据
@@ -1633,3 +1707,17 @@ window.editWord = editWord;
 window.showWordCard = showWordCard;
 window.closeWordCard = closeWordCard;
 window.showDeleteConfirm = showDeleteConfirm;
+window.cardStackManager = cardStackManager;
+
+// 添加调试函数
+window.testCardButtons = function() {
+    console.log('Testing card buttons...');
+    console.log('cardStackManager exists:', !!window.cardStackManager);
+    console.log('prevCardBtn exists:', !!prevCardBtn);
+    console.log('nextCardBtn exists:', !!nextCardBtn);
+    
+    if (window.cardStackManager) {
+        console.log('Current index:', window.cardStackManager.getCurrentIndex());
+        console.log('Total cards:', window.cardStackManager.getTotalCards());
+    }
+};

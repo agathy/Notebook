@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>移动端卡片堆测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            touch-action: manipulation;
+        }
+        .test-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .test-card {
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            touch-action: pan-x;
+        }
+        .test-card:active {
+            cursor: grabbing;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .info {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+        .debug {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📱 移动端滑动测试</h1>
+        <p class="info">在下面的卡片上左右滑动来测试触摸功能</p>
+        
+        <div class="test-card" id="testCard">
+            卡片 1
+        </div>
+        
+        <div class="controls">
+            <button id="prevBtn">← 上一个</button>
+            <div id="counter">1 / 3</div>
+            <button id="nextBtn">下一个 →</button>
+        </div>
+        
+        <div class="debug" id="debug">
+            等待触摸事件...
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="words_list.html" style="color: #3498db; text-decoration: none;">
+                → 返回单词列表测试实际功能
+            </a>
+        </div>
+    </div>
+
+    <script>
+        class SimpleCardTest {
+            constructor() {
+                this.currentIndex = 0;
+                this.totalCards = 3;
+                this.isDragging = false;
+                this.startX = 0;
+                this.deltaX = 0;
+                
+                this.card = document.getElementById('testCard');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.counter = document.getElementById('counter');
+                this.debug = document.getElementById('debug');
+                
+                this.setupEvents();
+                this.updateUI();
+            }
+            
+            setupEvents() {
+                // 触摸事件
+                this.card.addEventListener('touchstart', this.handleStart.bind(this), { passive: false });
+                document.addEventListener('touchmove', this.handleMove.bind(this), { passive: false });
+                document.addEventListener('touchend', this.handleEnd.bind(this), { passive: false });
+                
+                // 鼠标事件
+                this.card.addEventListener('mousedown', this.handleStart.bind(this));
+                document.addEventListener('mousemove', this.handleMove.bind(this));
+                document.addEventListener('mouseup', this.handleEnd.bind(this));
+                
+                // 按钮事件
+                this.prevBtn.addEventListener('click', () => this.previousCard());
+                this.nextBtn.addEventListener('click', () => this.nextCard());
+                
+                // 防止默认行为
+                this.card.addEventListener('dragstart', (e) => e.preventDefault());
+                this.card.addEventListener('contextmenu', (e) => e.preventDefault());
+            }
+            
+            handleStart(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                this.isDragging = true;
+                const point = e.touches ? e.touches[0] : e;
+                this.startX = point.clientX;
+                
+                this.debug.textContent = `开始滑动: ${point.clientX}`;
+                this.card.style.transition = 'none';
+            }
+            
+            handleMove(e) {
+                if (!this.isDragging) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const point = e.touches ? e.touches[0] : e;
+                this.deltaX = point.clientX - this.startX;
+                
+                // 更新卡片位置
+                const rotation = (this.deltaX / window.innerWidth) * 15;
+                this.card.style.transform = `translateX(${this.deltaX}px) rotate(${rotation}deg)`;
+                
+                this.debug.textContent = `滑动中: deltaX=${this.deltaX.toFixed(0)}, rotation=${rotation.toFixed(1)}°`;
+            }
+            
+            handleEnd(e) {
+                if (!this.isDragging) return;
+                
+                this.isDragging = false;
+                this.card.style.transition = 'transform 0.3s ease';
+                
+                // 判断滑动方向
+                if (Math.abs(this.deltaX) > 80) {
+                    if (this.deltaX > 0) {
+                        this.debug.textContent = `滑动结束: 向右滑动 (${this.deltaX.toFixed(0)}px) - 上一个`;
+                        this.previousCard();
+                    } else {
+                        this.debug.textContent = `滑动结束: 向左滑动 (${this.deltaX.toFixed(0)}px) - 下一个`;
+                        this.nextCard();
+                    }
+                } else {
+                    this.debug.textContent = `滑动结束: 回弹 (${this.deltaX.toFixed(0)}px)`;
+                    this.card.style.transform = '';
+                }
+                
+                this.deltaX = 0;
+            }
+            
+            nextCard() {
+                if (this.currentIndex < this.totalCards - 1) {
+                    this.currentIndex++;
+                    this.updateUI();
+                }
+                this.card.style.transform = '';
+            }
+            
+            previousCard() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.updateUI();
+                }
+                this.card.style.transform = '';
+            }
+            
+            updateUI() {
+                this.card.textContent = `卡片 ${this.currentIndex + 1}`;
+                this.counter.textContent = `${this.currentIndex + 1} / ${this.totalCards}`;
+                
+                this.prevBtn.disabled = this.currentIndex === 0;
+                this.nextBtn.disabled = this.currentIndex === this.totalCards - 1;
+                
+                // 更新卡片颜色
+                const colors = [
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+                ];
+                this.card.style.background = colors[this.currentIndex];
+            }
+        }
+        
+        // 初始化测试
+        new SimpleCardTest();
+        
+        // 添加设备信息
+        document.addEventListener('DOMContentLoaded', () => {
+            const info = document.createElement('div');
+            info.style.cssText = 'margin-top: 20px; padding: 10px; background: #e8f4f8; border-radius: 8px; font-size: 0.8rem;';
+            info.innerHTML = `
+                <strong>设备信息:</strong><br>
+                User Agent: ${navigator.userAgent.includes('Mobile') ? '移动设备' : '桌面设备'}<br>
+                Touch Support: ${('ontouchstart' in window) ? '支持' : '不支持'}<br>
+                Screen: ${window.innerWidth}x${window.innerHeight}
+            `;
+            document.querySelector('.test-container').appendChild(info);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡片调试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; }
+        .test-container { width: 300px; height: 200px; border: 2px solid #ccc; margin: 20px 0; position: relative; }
+        .word-card-item { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            background: #fff; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            padding: 20px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>卡片堆调试工具</h1>
+    
+    <div>
+        <button onclick="createTestCards()">创建测试卡片</button>
+        <button onclick="testCardManager()">测试卡片管理器</button>
+        <button onclick="checkDOM()">检查DOM</button>
+        <button onclick="clearContainer()">清空容器</button>
+    </div>
+    
+    <div class="test-container" id="testContainer">
+        <!-- 测试卡片将在这里显示 -->
+    </div>
+    
+    <div id="debug" class="debug">
+        等待测试...
+    </div>
+
+    <script type="module">
+        import { CardStackManager } from './js/modules/cardStackManager.js';
+        
+        let testManager = null;
+        
+        function log(message) {
+            const debug = document.getElementById('debug');
+            debug.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            debug.scrollTop = debug.scrollHeight;
+        }
+        
+        window.createTestCards = function() {
+            log('创建测试卡片...');
+            const container = document.getElementById('testContainer');
+            
+            // 创建3张测试卡片
+            for (let i = 0; i < 3; i++) {
+                const card = document.createElement('div');
+                card.className = 'word-card-item';
+                card.textContent = `测试卡片 ${i + 1}`;
+                card.style.zIndex = 10 - i;
+                card.style.transform = `translateY(${i * 8}px) scale(${1 - i * 0.05})`;
+                container.appendChild(card);
+            }
+            
+            log(`创建了 ${container.querySelectorAll('.word-card-item').length} 张卡片`);
+        };
+        
+        window.testCardManager = function() {
+            log('测试卡片管理器...');
+            const container = document.getElementById('testContainer');
+            
+            // 创建测试数据
+            const testWords = [
+                { id: 1, text: '苹果' },
+                { id: 2, text: '香蕉' },
+                { id: 3, text: '橙子' }
+            ];
+            
+            // 创建管理器
+            testManager = new CardStackManager(container);
+            
+            // 设置卡片创建回调
+            testManager.setOnCreateCard((wordData) => {
+                const card = document.createElement('div');
+                card.className = 'word-card-item';
+                card.textContent = wordData.text;
+                log(`创建卡片: ${wordData.text}`);
+                return card;
+            });
+            
+            // 设置卡片变化回调
+            testManager.setOnCardChange((index, currentCard) => {
+                log(`卡片变化: 索引 ${index}`);
+            });
+            
+            // 设置卡片数据
+            testManager.setCards(testWords);
+            
+            log('卡片管理器初始化完成');
+            
+            // 暴露到全局
+            window.testManager = testManager;
+        };
+        
+        window.checkDOM = function() {
+            log('检查DOM状态...');
+            const container = document.getElementById('testContainer');
+            const cards = container.querySelectorAll('.word-card-item');
+            
+            log(`容器中的卡片数量: ${cards.length}`);
+            log(`容器的所有子元素: ${container.children.length}`);
+            
+            Array.from(container.children).forEach((child, index) => {
+                log(`子元素 ${index}: ${child.className || child.tagName}`);
+            });
+            
+            if (testManager) {
+                log(`管理器当前索引: ${testManager.getCurrentIndex()}`);
+                log(`管理器总卡片数: ${testManager.getTotalCards()}`);
+                
+                const topCard = testManager.getTopCard();
+                log(`顶部卡片存在: ${!!topCard}`);
+            }
+        };
+        
+        window.clearContainer = function() {
+            log('清空容器...');
+            const container = document.getElementById('testContainer');
+            container.innerHTML = '';
+            testManager = null;
+            log('容器已清空');
+        };
+        
+        // 添加手动测试按钮
+        window.testNext = function() {
+            if (testManager) {
+                log('测试下一个卡片...');
+                testManager.nextCard();
+            } else {
+                log('请先创建卡片管理器');
+            }
+        };
+        
+        window.testPrev = function() {
+            if (testManager) {
+                log('测试上一个卡片...');
+                testManager.previousCard();
+            } else {
+                log('请先创建卡片管理器');
+            }
+        };
+        
+        // 页面加载完成后的初始检查
+        window.addEventListener('load', () => {
+            log('页面加载完成，开始调试...');
+        });
+    </script>
+    
+    <div style="margin-top: 20px;">
+        <button onclick="testNext()">测试下一个</button>
+        <button onclick="testPrev()">测试上一个</button>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <a href="words_list.html">返回单词列表</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按钮测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .debug {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>卡片按钮测试</h1>
+    
+    <div>
+        <button onclick="testNext()">测试下一个按钮</button>
+        <button onclick="testPrev()">测试上一个按钮</button>
+        <button onclick="checkStatus()">检查状态</button>
+    </div>
+    
+    <div id="debug" class="debug">
+        等待测试...
+    </div>
+    
+    <div>
+        <a href="words_list.html">返回单词列表</a>
+    </div>
+
+    <script>
+        function log(message) {
+            const debug = document.getElementById('debug');
+            debug.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            debug.scrollTop = debug.scrollHeight;
+        }
+        
+        function testNext() {
+            log('测试下一个按钮...');
+            
+            // 检查是否在单词列表页面
+            if (window.cardStackManager) {
+                log('找到 cardStackManager');
+                log('当前索引: ' + window.cardStackManager.getCurrentIndex());
+                log('总卡片数: ' + window.cardStackManager.getTotalCards());
+                
+                try {
+                    window.cardStackManager.nextCard();
+                    log('调用 nextCard() 成功');
+                } catch (error) {
+                    log('调用 nextCard() 失败: ' + error.message);
+                }
+            } else {
+                log('未找到 cardStackManager - 请先访问单词列表页面');
+            }
+        }
+        
+        function testPrev() {
+            log('测试上一个按钮...');
+            
+            if (window.cardStackManager) {
+                log('找到 cardStackManager');
+                log('当前索引: ' + window.cardStackManager.getCurrentIndex());
+                
+                try {
+                    window.cardStackManager.previousCard();
+                    log('调用 previousCard() 成功');
+                } catch (error) {
+                    log('调用 previousCard() 失败: ' + error.message);
+                }
+            } else {
+                log('未找到 cardStackManager - 请先访问单词列表页面');
+            }
+        }
+        
+        function checkStatus() {
+            log('检查状态...');
+            log('window.cardStackManager 存在: ' + !!window.cardStackManager);
+            
+            if (window.cardStackManager) {
+                log('当前索引: ' + window.cardStackManager.getCurrentIndex());
+                log('总卡片数: ' + window.cardStackManager.getTotalCards());
+                log('是否正在动画: ' + window.cardStackManager.isAnimating);
+            }
+            
+            // 检查按钮元素
+            const prevBtn = document.getElementById('prev-card-btn');
+            const nextBtn = document.getElementById('next-card-btn');
+            
+            log('上一个按钮存在: ' + !!prevBtn);
+            log('下一个按钮存在: ' + !!nextBtn);
+            
+            if (prevBtn) log('上一个按钮禁用: ' + prevBtn.disabled);
+            if (nextBtn) log('下一个按钮禁用: ' + nextBtn.disabled);
+        }
+        
+        // 页面加载时检查
+        window.addEventListener('load', () => {
+            log('页面加载完成');
+            checkStatus();
+        });
+    </script>
+</body>
+</html>

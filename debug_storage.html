@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储数据调试 - 多语言单词笔记本</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .section h2 {
+            color: #475569;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button.danger {
+            background: #dc2626;
+        }
+        button.danger:hover {
+            background: #b91c1c;
+        }
+        .output {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3498db;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回首页</a>
+        
+        <h1>🔧 存储数据调试工具</h1>
+        <p>如果你的单词无法显示，可以使用这个工具来检查和迁移数据。</p>
+        
+        <div class="section">
+            <h2>📊 当前存储状态</h2>
+            <button onclick="checkCurrentData()">检查当前数据</button>
+            <div id="current-status" class="output"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔍 查找旧数据</h2>
+            <button onclick="findOldData()">扫描所有可能的旧数据</button>
+            <div id="old-data-status" class="output"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🚀 自动迁移</h2>
+            <button onclick="performAutoMigration()">执行自动数据迁移</button>
+            <div id="migration-status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🛠️ 手动迁移</h2>
+            <p>如果自动迁移失败，你可以手动指定旧的存储键名：</p>
+            <div>
+                <label>旧单词数据键名: </label>
+                <input type="text" id="old-words-key" placeholder="例如: words" style="padding: 5px; margin: 5px;">
+            </div>
+            <div>
+                <label>旧设置数据键名: </label>
+                <input type="text" id="old-settings-key" placeholder="例如: settings" style="padding: 5px; margin: 5px;">
+            </div>
+            <button onclick="performManualMigration()">执行手动迁移</button>
+            <div id="manual-migration-status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🗑️ 清理工具</h2>
+            <p style="color: #dc2626;">⚠️ 危险操作：这些操作会删除数据，请谨慎使用！</p>
+            <button class="danger" onclick="clearCurrentData()">清空当前数据</button>
+            <button class="danger" onclick="clearAllData()">清空所有存储数据</button>
+            <div id="clear-status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 所有存储键</h2>
+            <button onclick="listAllStorageKeys()">列出所有localStorage键</button>
+            <div id="all-keys-status" class="output"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { performDataMigration, listPossibleOldData, manualMigrate } from './js/modules/dataMigration.js';
+        
+        // 暴露函数到全局作用域
+        window.performDataMigration = performDataMigration;
+        window.listPossibleOldData = listPossibleOldData;
+        window.manualMigrate = manualMigrate;
+        
+        window.checkCurrentData = function() {
+            const output = document.getElementById('current-status');
+            const words = localStorage.getItem('polyglotWords');
+            const settings = localStorage.getItem('polyglotSettings');
+            
+            let result = '当前存储状态:\n\n';
+            
+            if (words) {
+                try {
+                    const parsedWords = JSON.parse(words);
+                    result += `✅ 单词数据: 找到 ${parsedWords.length} 个单词\n`;
+                } catch (e) {
+                    result += `❌ 单词数据: 数据损坏 (${e.message})\n`;
+                }
+            } else {
+                result += `❌ 单词数据: 未找到\n`;
+            }
+            
+            if (settings) {
+                try {
+                    const parsedSettings = JSON.parse(settings);
+                    result += `✅ 设置数据: 已找到\n`;
+                    result += `   - 母语: ${parsedSettings.nativeLanguage || '未设置'}\n`;
+                    result += `   - 学习语言: ${parsedSettings.learningLanguages?.join(', ') || '未设置'}\n`;
+                } catch (e) {
+                    result += `❌ 设置数据: 数据损坏 (${e.message})\n`;
+                }
+            } else {
+                result += `❌ 设置数据: 未找到\n`;
+            }
+            
+            output.textContent = result;
+        };
+        
+        window.findOldData = function() {
+            const output = document.getElementById('old-data-status');
+            const oldData = listPossibleOldData();
+            
+            if (oldData.length === 0) {
+                output.textContent = '未找到任何可能的旧数据';
+            } else {
+                let result = '找到以下可能的旧数据:\n\n';
+                oldData.forEach(item => {
+                    result += `键名: ${item.key}\n`;
+                    result += `类型: ${item.dataType}\n`;
+                    if (item.length !== undefined) {
+                        result += `长度: ${item.length}\n`;
+                    }
+                    if (item.preview) {
+                        result += `预览: ${item.preview}\n`;
+                    }
+                    if (item.error) {
+                        result += `错误: ${item.error}\n`;
+                    }
+                    result += '\n';
+                });
+                output.textContent = result;
+            }
+        };
+        
+        window.performAutoMigration = function() {
+            const statusDiv = document.getElementById('migration-status');
+            
+            try {
+                const migrated = performDataMigration();
+                if (migrated) {
+                    statusDiv.innerHTML = '<div class="status success">✅ 数据迁移成功！请刷新页面查看结果。</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="status info">ℹ️ 无需迁移数据，当前数据完整或未找到旧数据。</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ 迁移失败: ${error.message}</div>`;
+            }
+        };
+        
+        window.performManualMigration = function() {
+            const statusDiv = document.getElementById('manual-migration-status');
+            const wordsKey = document.getElementById('old-words-key').value.trim();
+            const settingsKey = document.getElementById('old-settings-key').value.trim();
+            
+            if (!wordsKey && !settingsKey) {
+                statusDiv.innerHTML = '<div class="status error">❌ 请至少输入一个键名</div>';
+                return;
+            }
+            
+            try {
+                const migrated = manualMigrate(wordsKey || null, settingsKey || null);
+                if (migrated) {
+                    statusDiv.innerHTML = '<div class="status success">✅ 手动迁移成功！请刷新页面查看结果。</div>';
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ 手动迁移失败，请检查键名是否正确。</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ 迁移失败: ${error.message}</div>`;
+            }
+        };
+        
+        window.clearCurrentData = function() {
+            if (confirm('确定要清空当前数据吗？这个操作不可撤销！')) {
+                localStorage.removeItem('polyglotWords');
+                localStorage.removeItem('polyglotSettings');
+                document.getElementById('clear-status').innerHTML = '<div class="status success">✅ 当前数据已清空</div>';
+            }
+        };
+        
+        window.clearAllData = function() {
+            if (confirm('确定要清空所有localStorage数据吗？这个操作不可撤销！')) {
+                localStorage.clear();
+                document.getElementById('clear-status').innerHTML = '<div class="status success">✅ 所有存储数据已清空</div>';
+            }
+        };
+        
+        window.listAllStorageKeys = function() {
+            const output = document.getElementById('all-keys-status');
+            const keys = Object.keys(localStorage);
+            
+            if (keys.length === 0) {
+                output.textContent = 'localStorage 中没有任何数据';
+            } else {
+                let result = `找到 ${keys.length} 个存储键:\n\n`;
+                keys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    const size = new Blob([value]).size;
+                    result += `${key} (${size} bytes)\n`;
+                });
+                output.textContent = result;
+            }
+        };
+    </script>
+</body>
+</html>

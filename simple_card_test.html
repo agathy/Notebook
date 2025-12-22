@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单卡片测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .cards-stack {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 20px auto;
+            border: 2px dashed #ccc;
+        }
+        .word-card-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+            transition: all 0.3s ease;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>卡片切换测试</h2>
+        <p>测试8张卡片的切换功能</p>
+        
+        <div class="cards-stack" id="cardsStack"></div>
+        
+        <div class="controls">
+            <button id="prevBtn">← 上一个</button>
+            <div class="counter">
+                <span id="current">1</span> / <span id="total">8</span>
+            </div>
+            <button id="nextBtn">下一个 →</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="words_list.html">返回单词列表</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { CardStackManager } from './js/modules/cardStackManager.js';
+        
+        const log = (msg) => {
+            const logEl = document.getElementById('log');
+            logEl.innerHTML += `${new Date().toLocaleTimeString()}: ${msg}<br>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        };
+        
+        // 创建测试数据
+        const testWords = [];
+        for (let i = 1; i <= 8; i++) {
+            testWords.push({
+                id: i,
+                text: `卡片 ${i}`,
+                color: `hsl(${i * 45}, 70%, 60%)`
+            });
+        }
+        
+        log(`创建了 ${testWords.length} 张测试卡片`);
+        
+        // 初始化卡片管理器
+        const container = document.getElementById('cardsStack');
+        const manager = new CardStackManager(container);
+        
+        // 设置卡片创建回调
+        manager.setOnCreateCard((wordData) => {
+            const card = document.createElement('div');
+            card.className = 'word-card-item';
+            card.textContent = wordData.text;
+            card.style.background = wordData.color;
+            card.style.borderColor = wordData.color;
+            card.style.color = 'white';
+            log(`创建卡片: ${wordData.text}`);
+            return card;
+        });
+        
+        // 设置卡片变化回调
+        manager.setOnCardChange((index, currentCard) => {
+            document.getElementById('current').textContent = index + 1;
+            document.getElementById('total').textContent = testWords.length;
+            
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = index <= 0;
+            nextBtn.disabled = index >= testWords.length - 1;
+            
+            log(`卡片变化: 索引 ${index + 1}/${testWords.length}`);
+        });
+        
+        // 设置卡片数据
+        manager.setCards(testWords);
+        
+        // 绑定按钮事件
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            log('点击上一个按钮');
+            manager.previousCard();
+        });
+        
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            log('点击下一个按钮');
+            manager.nextCard();
+        });
+        
+        log('卡片管理器初始化完成');
+        
+        // 暴露到全局用于调试
+        window.testManager = manager;
+    </script>
+</body>
+</html>
