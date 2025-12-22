@@ -1,0 +1,43 @@
+/* 主页面样式 */
+#main-app {
+    display: none;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background-color: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+.app-title {
+    color: var(--gray-800);
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+/* 响应式主页 */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+        padding-bottom: 60px;
+    }
+    
+    .settings-btn {
+        top: auto;
+        bottom: var(--spacing-lg);
+        right: var(--spacing-lg);
+    }
+    
+    .back-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

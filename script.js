@@ -37,6 +37,8 @@ import {
     selectedTagFilter,
     currentSortOption,
     allTags,
+    setEditingWordId,
+    setDisplayedWordId,
     getFilteredAndSortedWords,
     addWord,
     updateWord,
@@ -69,7 +71,7 @@ let userSettings = {
 window.userSettings = userSettings;
 
 // 检测当前页面
-const isWordsListPage = window.location.pathname.includes('WordsList.html');
+const isWordsListPage = window.location.pathname.includes('words-list.html');
 
 // DOM元素（可能为null，取决于当前页面）
 const messageEl = document.getElementById('message');
@@ -134,6 +136,13 @@ const useDrawingBtn = document.getElementById('use-drawing-btn');
 const closeDrawModalBtn = document.getElementById('close-draw-modal');
 const batchAddBtn = document.getElementById('batch-add-btn');
 
+// 视图切换相关元素
+const listViewBtn = document.getElementById('list-view-btn');
+const cardViewBtn = document.getElementById('card-view-btn');
+const listViewContainer = document.getElementById('list-view');
+const cardViewContainer = document.getElementById('card-view');
+const cardsStack = document.getElementById('cards-stack');
+
 
 // 显示消息
 function showMessage(text, type = 'success') {
@@ -183,9 +192,163 @@ function loadWordsCallback() {
             updateTagFilterSelect();
         }
         
-        // 更新表格
-        updateWordsTable();
+        // 根据当前视图更新内容
+        if (currentView === 'list') {
+            updateWordsTable();
+        } else {
+            updateCardsView();
+        }
     }
+}
+
+// 视图切换功能
+let currentView = 'list'; // 'list' 或 'cards'
+
+function switchToListView() {
+    if (!listViewContainer || !cardViewContainer) return;
+    
+    currentView = 'list';
+    listViewContainer.style.display = 'block';
+    cardViewContainer.style.display = 'none';
+    
+    // 更新按钮状态
+    if (listViewBtn) {
+        listViewBtn.classList.add('active');
+    }
+    if (cardViewBtn) {
+        cardViewBtn.classList.remove('active');
+    }
+    
+    // 更新表格
+    updateWordsTable();
+}
+
+function switchToCardView() {
+    if (!listViewContainer || !cardViewContainer) return;
+    
+    currentView = 'cards';
+    listViewContainer.style.display = 'none';
+    cardViewContainer.style.display = 'block';
+    
+    // 更新按钮状态
+    if (listViewBtn) {
+        listViewBtn.classList.remove('active');
+    }
+    if (cardViewBtn) {
+        cardViewBtn.classList.add('active');
+    }
+    
+    // 更新卡片
+    updateCardsView();
+}
+
+function updateCardsView() {
+    if (!cardsStack) return;
+    
+    const filteredWords = getFilteredAndSortedWords();
+    
+    // 清空现有卡片
+    cardsStack.innerHTML = '';
+    
+    if (filteredWords.length === 0) {
+        cardsStack.innerHTML = `
+            <div class="cards-empty">
+                <i class="fas fa-layer-group"></i>
+                <h3>暂无单词</h3>
+                <p>添加一些单词来查看卡片堆视图</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // 生成卡片
+    filteredWords.forEach(word => {
+        const cardElement = createWordCard(word);
+        cardsStack.appendChild(cardElement);
+    });
+}
+
+function createWordCard(word) {
+    const card = document.createElement('div');
+    card.className = 'word-card-item';
+    card.setAttribute('data-word-id', word.id);
+    
+    // 获取主要语言（第一个非母语语言）
+    const mainTranslation = word.translations.find(t => t.language !== userSettings.nativeLanguage) || word.translations[0];
+    const nativeTranslation = word.translations.find(t => t.language === userSettings.nativeLanguage);
+    
+    // 构建语言显示
+    let languagesHtml = '';
+    word.translations.forEach(translation => {
+        if (translation.language !== userSettings.nativeLanguage) {
+            const langInfo = availableLanguages.find(lang => lang.code === translation.language);
+            const flagClass = `flag-${translation.language}`;
+            
+            languagesHtml += `
+                <div class="word-card-item-language">
+                    <div class="language-flag ${flagClass}">${langInfo?.flag || '🌐'}</div>
+                    <div>
+                        <div class="word-card-item-text">${translation.text}</div>
+                        ${translation.phonetic ? `<div class="word-card-item-phonetic">[${translation.phonetic}]</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+    });
+    
+    // 构建标签
+    let tagsHtml = '';
+    if (word.tags && word.tags.length > 0) {
+        tagsHtml = `
+            <div class="word-card-item-tags">
+                ${word.tags.map(tag => `<span class="word-card-item-tag">${tag}</span>`).join('')}
+            </div>
+        `;
+    }
+    
+    // 构建母语注释
+    let nativeHtml = '';
+    if (word.nativeNote) {
+        nativeHtml = `<div class="word-card-item-native">💭 ${word.nativeNote}</div>`;
+    }
+    
+    // 构建图片
+    let imageHtml = '';
+    if (word.image) {
+        imageHtml = `<img src="${word.image}" alt="单词图片" class="word-card-item-image">`;
+    } else {
+        imageHtml = `<div class="word-card-item-placeholder"><i class="fas fa-image"></i></div>`;
+    }
+    
+    card.innerHTML = `
+        <div class="word-card-item-header">
+            <div class="word-card-item-languages">
+                ${languagesHtml}
+            </div>
+            ${imageHtml}
+        </div>
+        ${tagsHtml}
+        ${nativeHtml}
+        <div class="word-card-item-actions">
+            <button class="word-card-item-action word-card-item-edit" onclick="editWord('${word.id}')" title="编辑">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="word-card-item-action word-card-item-delete" onclick="showDeleteConfirm('${word.id}')" title="删除">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    // 添加点击事件显示详细信息
+    card.addEventListener('click', (e) => {
+        // 如果点击的是操作按钮，不触发卡片点击
+        if (e.target.closest('.word-card-item-actions')) {
+            return;
+        }
+        showWordCard(word.id);
+    });
+    
+    return card;
 }
 
 // 更新单词表格
@@ -968,7 +1131,7 @@ function editWord(wordId) {
     const word = getWordById(wordId);
     if (!word) return;
     
-    editingWordId = wordId;
+    setEditingWordId(wordId);
     
     // 更新模态框标题
     modalTitleEl.textContent = '编辑单词';
@@ -1001,7 +1164,7 @@ function editWord(wordId) {
                 
                 // 加载录音数据
                 if (translation.audio) {
-                    recordedAudios[langCode] = translation.audio;
+                    saveRecording(langCode, translation.audio);
                     const audioBadge = document.getElementById(`${langCode}-audio-badge`);
                     if (audioBadge) {
                         audioBadge.style.display = 'inline-block';
@@ -1055,7 +1218,7 @@ function showDeleteConfirm(wordId) {
     const word = getWordById(wordId);
     if (!word) return;
     
-    editingWordId = wordId;
+    setEditingWordId(wordId);
     deleteConfirmTextEl.textContent = `您确定要删除 "${word.nativeNote || '这个单词'}" 吗？`;
     deleteModalEl.style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -1085,7 +1248,11 @@ if (toggleNativeBtn) {
 if (tagFilterSelect) {
     tagFilterSelect.addEventListener('change', function() {
         setSelectedTagFilter(this.value);
-        updateWordsTable();
+        if (currentView === 'list') {
+            updateWordsTable();
+        } else {
+            updateCardsView();
+        }
     });
 }
 
@@ -1093,7 +1260,24 @@ if (tagFilterSelect) {
 if (sortOptionSelect) {
     sortOptionSelect.addEventListener('change', function() {
         setSortOption(this.value);
-        updateWordsTable();
+        if (currentView === 'list') {
+            updateWordsTable();
+        } else {
+            updateCardsView();
+        }
+    });
+}
+
+// 视图切换按钮事件
+if (listViewBtn) {
+    listViewBtn.addEventListener('click', () => {
+        switchToListView();
+    });
+}
+
+if (cardViewBtn) {
+    cardViewBtn.addEventListener('click', () => {
+        switchToCardView();
     });
 }
 
@@ -1444,3 +1628,8 @@ window.addEventListener('pageshow', function(event) {
     console.log('Page shown, reloading word data');
     if (loadWordsCallback) loadWordsCallback();
 });
+// 暴露函数到全局作用域，以便HTML onclick事件可以访问
+window.editWord = editWord;
+window.showWordCard = showWordCard;
+window.closeWordCard = closeWordCard;
+window.showDeleteConfirm = showDeleteConfirm;

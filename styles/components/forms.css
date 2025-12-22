@@ -1,0 +1,408 @@
+/* 表单组件样式 */
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 600;
+    color: var(--gray-800);
+    font-size: 1.1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: border var(--transition-normal);
+    background-color: white;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+textarea.form-control {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+}
+
+/* 语言输入相关 */
+.language-section {
+    background-color: var(--gray-50);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.language-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.language-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    position: relative;
+}
+
+.language-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.language-expand-btn {
+    background: none;
+    border: none;
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: 4px var(--spacing-sm);
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.language-expand-btn:hover {
+    background-color: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.language-extra-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--gray-200);
+}
+
+.language-word-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.language-word-input-wrapper .form-control {
+    flex: 1;
+}
+
+.word-input-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 自动翻译样式 */
+.language-word-input.auto-translated {
+    background-color: #fef3c7;
+    border-color: #fde68a;
+    padding-right: 70px;
+}
+
+.language-word-input.translation-accepted {
+    background-color: #d1fae5;
+    border-color: #10b981;
+    animation: acceptPulse 0.5s ease-out;
+}
+
+.auto-translate-actions {
+    position: absolute;
+    right: var(--spacing-sm);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    z-index: 10;
+}
+
+.language-input-flag {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: white;
+}
+
+/* 图片上传相关 */
+.image-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.image-upload-divider {
+    text-align: center;
+    color: var(--gray-400);
+    font-size: 0.9rem;
+    padding: var(--spacing-xs) 0;
+    position: relative;
+}
+
+.image-upload-divider::before,
+.image-upload-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: var(--gray-200);
+}
+
+.image-upload-divider::before {
+    left: 0;
+}
+
+.image-upload-divider::after {
+    right: 0;
+}
+
+.image-upload-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.image-upload-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--gray-100);
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius-md);
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-weight: 500;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+}
+
+.image-upload-label:hover {
+    background-color: var(--gray-200);
+    border-color: var(--gray-400);
+    color: var(--gray-800);
+}
+
+.image-upload-label i {
+    font-size: 1.1rem;
+}
+
+.clear-image-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 12px;
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    color: var(--danger-color);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.clear-image-btn:hover {
+    background-color: #fecaca;
+    border-color: #f87171;
+}
+
+.image-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-sm);
+    display: none;
+}
+
+.image-preview.show {
+    display: block;
+}
+
+/* 标签输入 */
+.tags-input-container {
+    position: relative;
+}
+
+.tags-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    min-height: 50px;
+    align-items: center;
+    background-color: white;
+}
+
+.tag-input-item {
+    background-color: #e8f4fc;
+    color: var(--primary-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-xl);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.tag-input-item .remove-tag {
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.tag-input-item .remove-tag:hover {
+    color: var(--danger-color);
+}
+
+.tag-input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 100px;
+    padding: var(--spacing-xs);
+    font-size: 1rem;
+}
+
+.tags-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: var(--shadow-md);
+    display: none;
+}
+
+.tags-suggestions.show {
+    display: block;
+}
+
+.tag-suggestion {
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.tag-suggestion:hover {
+    background-color: var(--gray-100);
+}
+
+.tag-suggestion.selected {
+    background-color: #e8f4fc;
+}
+
+/* 过滤器控件 */
+.filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.filter-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray-600);
+}
+
+.filter-select {
+    padding: var(--spacing-sm) 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    background-color: white;
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    min-width: 150px;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+}
+
+/* 响应式表单 */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .language-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .image-upload-buttons {
+        flex-direction: column;
+    }
+    
+    .image-upload-label {
+        width: 100%;
+    }
+    
+    .clear-image-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
+}

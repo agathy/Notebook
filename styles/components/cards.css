@@ -1,0 +1,245 @@
+/* 卡片组件样式 */
+.card {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-body {
+    padding: var(--spacing-xl);
+}
+
+/* 首页功能卡片 */
+.home-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+.home-action-card {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-normal);
+}
+
+.home-action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.home-action-button {
+    width: 100%;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    border: none;
+    background: none;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: all var(--transition-normal);
+}
+
+.home-action-button:hover {
+    background-color: var(--gray-50);
+}
+
+.home-action-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-lg);
+    font-size: 2.5rem;
+    color: white;
+    transition: all var(--transition-normal);
+}
+
+.add-action-icon {
+    background-color: var(--primary-color);
+}
+
+.words-action-icon {
+    background-color: var(--success-color);
+}
+
+.home-action-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: var(--spacing-sm);
+}
+
+.home-action-description {
+    font-size: 1rem;
+    color: var(--gray-500);
+    line-height: 1.5;
+}
+
+/* 大添加按钮卡片 */
+.big-add-section {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+    box-shadow: var(--shadow-md);
+}
+
+.big-add-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: block;
+}
+
+.big-add-button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(52, 152, 219, 0.3);
+}
+
+.add-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.add-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+.add-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* 翻译卡片 */
+.card-translations {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: 25px;
+}
+
+.card-translation-item {
+    background-color: var(--gray-50);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+}
+
+.card-translation-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.card-translation-language {
+    font-weight: 500;
+    color: var(--gray-600);
+    font-size: 0.85rem;
+}
+
+.card-translation-text-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+.card-translation-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: var(--spacing-xs);
+}
+
+.card-translation-phonetic {
+    color: var(--gray-500);
+    font-style: italic;
+    font-size: 0.95rem;
+}
+
+.card-translation-example {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--gray-200);
+}
+
+.card-translation-audio {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.user-audio-badge,
+.user-audio-badge-input {
+    font-size: 0.85rem;
+}
+
+.user-audio-badge-input {
+    margin-left: 2px;
+}
+
+/* 响应式卡片 */
+@media (max-width: 768px) {
+    .home-actions {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .home-action-button {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+    
+    .home-action-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    
+    .home-action-title {
+        font-size: 1.3rem;
+    }
+    
+    .big-add-section {
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+    
+    .big-add-button {
+        padding: 25px var(--spacing-lg);
+    }
+    
+    .add-icon {
+        font-size: 2.5rem;
+    }
+    
+    .add-title {
+        font-size: 1.5rem;
+    }
+}

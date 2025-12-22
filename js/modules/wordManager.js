@@ -9,6 +9,15 @@ export let selectedTagFilter = '';
 export let currentSortOption = 'newest';
 export let allTags = new Set();
 
+// 设置编辑状态的函数
+export function setEditingWordId(wordId) {
+    editingWordId = wordId;
+}
+
+export function setDisplayedWordId(wordId) {
+    displayedWordId = wordId;
+}
+
 // 全局引用
 let showMessageCallback = null;
 let updateAllTagsCallback = null;
@@ -472,8 +481,8 @@ function replaceImport(importedWords) {
 
 // 重置编辑状态
 export function resetEditingState() {
-    editingWordId = null;
-    displayedWordId = null;
+    setEditingWordId(null);
+    setDisplayedWordId(null);
 }
 
 // 设置选中的标签筛选

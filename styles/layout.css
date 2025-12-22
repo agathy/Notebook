@@ -1,0 +1,61 @@
+/* 布局相关样式 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+/* 网格布局 */
+.grid {
+    display: grid;
+}
+
+.grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid-auto-fill {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.grid-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+.gap-xl { gap: var(--spacing-xl); }
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+    
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .grid-auto-fit {
+        grid-template-columns: 1fr;
+    }
+    
+    /* 移动端隐藏/显示 */
+    .mobile-hidden {
+        display: none;
+    }
+    
+    .mobile-show {
+        display: block;
+    }
+    
+    /* 移动端布局调整 */
+    .mobile-flex-column {
+        flex-direction: column;
+    }
+    
+    .mobile-full-width {
+        width: 100%;
+    }
+}

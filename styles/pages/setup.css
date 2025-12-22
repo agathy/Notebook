@@ -1,0 +1,120 @@
+/* 语言设置页面样式 */
+#language-setup {
+    background-color: white;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl) var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    max-width: 500px;
+    margin: 50px auto;
+}
+
+.setup-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.setup-header h1 {
+    color: var(--gray-800);
+    margin-bottom: var(--spacing-sm);
+    font-size: 2rem;
+}
+
+.setup-header p {
+    color: var(--gray-500);
+    font-size: 1.1rem;
+}
+
+/* 语言选项 */
+.language-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    justify-content: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.language-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    border: 2px solid #e0e0e0;
+    background-color: white;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    width: 120px;
+}
+
+.language-option:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+}
+
+.language-option.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(52, 152, 219, 0.05);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+}
+
+.language-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.language-name {
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.language-code {
+    font-size: 0.9rem;
+    color: var(--gray-500);
+    margin-top: var(--spacing-xs);
+}
+
+/* 语言图标颜色 */
+.language-zh .language-icon { 
+    background-color: var(--lang-zh); 
+    color: white; 
+}
+
+.language-en .language-icon { 
+    background-color: var(--lang-en); 
+    color: white; 
+}
+
+.language-ko .language-icon { 
+    background-color: var(--lang-ko); 
+    color: white; 
+}
+
+.language-es .language-icon { 
+    background-color: var(--lang-es); 
+    color: white; 
+}
+
+/* 响应式设置页面 */
+@media (max-width: 768px) {
+    #language-setup {
+        margin: var(--spacing-lg) auto;
+        padding: var(--spacing-xl) var(--spacing-lg);
+    }
+    
+    .language-options {
+        gap: var(--spacing-sm);
+    }
+    
+    .language-option {
+        width: 100px;
+        padding: 12px;
+    }
+}

@@ -1,0 +1,91 @@
+/* 语言相关模块样式 */
+.language-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.language-header h3 {
+    margin-right: var(--spacing-sm);
+}
+
+/* 语言标识符 */
+.language-flag,
+.language-input-flag {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+}
+
+.language-input-flag {
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+}
+
+/* 语言颜色映射 */
+.flag-zh,
+.language-zh .language-flag { 
+    background-color: var(--lang-zh); 
+}
+
+.flag-en,
+.language-en .language-flag { 
+    background-color: var(--lang-en); 
+}
+
+.flag-ko,
+.language-ko .language-flag { 
+    background-color: var(--lang-ko); 
+}
+
+.flag-es,
+.language-es .language-flag { 
+    background-color: var(--lang-es); 
+}
+
+/* 语言选择相关 */
+.language-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.language-selector-item {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.language-selector-item:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.language-selector-item.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+}
+
+/* 母语标识 */
+.native-indicator {
+    background-color: var(--success-color);
+    color: white;
+    padding: 2px var(--spacing-xs);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
