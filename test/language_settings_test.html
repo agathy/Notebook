@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语言设置功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-step {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-left-color: #28a745; }
+        .error { background: #f8d7da; border-left-color: #dc3545; }
+        .info { background: #d1ecf1; border-left-color: #17a2b8; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        
+        .test-link {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .test-link:hover {
+            background: #218838;
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        
+        .instruction {
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 语言设置功能测试</h1>
+    
+    <div class="result info">
+        <strong>🎯 测试目标：</strong>验证在单词列表页面点击语言设置按钮是否能直接显示语言设置界面，而不是跳转到首页
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 1: 准备测试环境</div>
+        <p>首先确保有一些测试数据，然后访问单词列表页面</p>
+        
+        <div class="instruction">
+            <strong>操作步骤：</strong>
+            <ol>
+                <li>点击下面的链接打开首页</li>
+                <li>如果没有设置语言，先设置母语和学习语言</li>
+                <li>添加一些测试单词（可选，但建议添加）</li>
+                <li>然后点击"我的单词本"进入单词列表页面</li>
+            </ol>
+        </div>
+        
+        <a href="../index.html" class="test-link" target="_blank">🏠 打开首页</a>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 2: 测试语言设置功能</div>
+        <p>在单词列表页面测试语言设置按钮的功能</p>
+        
+        <div class="instruction">
+            <strong>操作步骤：</strong>
+            <ol>
+                <li>点击下面的链接打开单词列表页面</li>
+                <li>找到右上角的设置按钮（齿轮图标）</li>
+                <li>点击设置按钮</li>
+                <li><strong>验证：</strong>应该直接显示语言设置界面，而不是跳转到首页</li>
+            </ol>
+        </div>
+        
+        <a href="../words_list.html" class="test-link" target="_blank">📚 打开单词列表页面</a>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 3: 测试设置修改功能</div>
+        <p>测试在单词列表页面修改语言设置的完整流程</p>
+        
+        <div class="instruction">
+            <strong>操作步骤：</strong>
+            <ol>
+                <li>在语言设置界面中，尝试修改母语或学习语言</li>
+                <li>点击"保存设置"按钮</li>
+                <li><strong>验证：</strong>应该返回单词列表页面</li>
+                <li><strong>验证：</strong>顶部的语言显示应该更新</li>
+                <li><strong>验证：</strong>如果切换了母语，应该看到数据迁移的提示</li>
+                <li><strong>验证：</strong>表格头部应该反映新的语言设置</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 4: 测试取消功能</div>
+        <p>测试取消按钮是否正常工作</p>
+        
+        <div class="instruction">
+            <strong>操作步骤：</strong>
+            <ol>
+                <li>再次点击设置按钮进入语言设置</li>
+                <li>修改一些设置（但不要保存）</li>
+                <li>点击"取消"按钮</li>
+                <li><strong>验证：</strong>应该返回单词列表页面</li>
+                <li><strong>验证：</strong>语言设置应该没有改变</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 5: 对比测试（修复前 vs 修复后）</div>
+        
+        <div class="result success">
+            <strong>✅ 修复后的预期行为：</strong>
+            <ul>
+                <li>点击设置按钮 → 直接显示语言设置界面</li>
+                <li>修改设置后 → 返回单词列表页面</li>
+                <li>界面更新 → 实时反映新的语言设置</li>
+                <li>数据迁移 → 自动处理语言切换</li>
+            </ul>
+        </div>
+        
+        <div class="result error">
+            <strong>❌ 修复前的问题行为：</strong>
+            <ul>
+                <li>点击设置按钮 → 跳转到首页</li>
+                <li>需要在首页设置 → 额外的页面跳转</li>
+                <li>用户体验差 → 不直观，操作繁琐</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">测试结果记录</div>
+        <p>请根据测试结果填写下面的检查清单：</p>
+        
+        <div class="instruction">
+            <strong>功能检查清单：</strong>
+            <ul>
+                <li>☐ 单词列表页面有设置按钮</li>
+                <li>☐ 点击设置按钮直接显示语言设置界面</li>
+                <li>☐ 语言设置界面显示当前设置</li>
+                <li>☐ 可以修改母语和学习语言</li>
+                <li>☐ 保存按钮正常工作</li>
+                <li>☐ 取消按钮正常工作</li>
+                <li>☐ 设置保存后返回单词列表页面</li>
+                <li>☐ 语言显示实时更新</li>
+                <li>☐ 表格头部正确更新</li>
+                <li>☐ 数据迁移功能正常（如果切换母语）</li>
+            </ul>
+        </div>
+        
+        <button onclick="recordTestResult(true)">✅ 测试通过</button>
+        <button onclick="recordTestResult(false)">❌ 测试失败</button>
+        
+        <div id="test-result"></div>
+    </div>
+
+    <script>
+        function recordTestResult(passed) {
+            const resultDiv = document.getElementById('test-result');
+            
+            if (passed) {
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <strong>🎉 测试通过！</strong>
+                        <p>语言设置功能在单词列表页面正常工作，用户体验得到显著改善！</p>
+                        <p><strong>修复效果：</strong></p>
+                        <ul>
+                            <li>✅ 直接访问语言设置，无需页面跳转</li>
+                            <li>✅ 设置保存后立即更新界面</li>
+                            <li>✅ 完整的功能支持，包括数据迁移</li>
+                            <li>✅ 用户体验显著改善</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <strong>❌ 测试失败</strong>
+                        <p>语言设置功能可能存在问题，需要进一步检查和修复。</p>
+                        <p><strong>可能的问题：</strong></p>
+                        <ul>
+                            <li>JavaScript错误导致功能异常</li>
+                            <li>DOM元素未正确初始化</li>
+                            <li>事件处理器未正确绑定</li>
+                            <li>CSS样式影响界面显示</li>
+                        </ul>
+                        <p><strong>建议：</strong>打开浏览器开发者工具检查控制台错误信息</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载时显示当前时间
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date().toLocaleString();
+            document.title += ` - ${now}`;
+        });
+    </script>
+</body>
+</html>

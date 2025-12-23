@@ -18,6 +18,44 @@
         </div>
     </div>
     
+    <!-- 语言设置页面 -->
+    <div class="container" id="language-setup" style="display: none;">
+        <div class="setup-header">
+            <h1>语言设置</h1>
+            <p>修改您的母语和学习语言设置</p>
+        </div>
+        
+        <!-- 母语选择 -->
+        <div class="form-group">
+            <label>选择您的母语</label>
+            <div class="language-options" id="native-language-options">
+                <!-- 语言选项将通过JS动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 学习语言选择 -->
+        <div class="form-group">
+            <label>选择要学习的语言（至少选择一种）</label>
+            <div class="language-options" id="learning-language-options">
+                <!-- 语言选项将通过JS动态生成 -->
+            </div>
+            
+            <div id="selected-languages-container" style="margin-top: 20px;">
+                <label>已选语言：</label>
+                <div class="selected-languages" id="selected-languages">
+                    <div style="color: #94a3b8; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center;">
+                        请从上方选择语言
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="language-setup-actions">
+            <button id="cancel-settings" class="btn btn-secondary">取消</button>
+            <button id="save-settings" class="btn btn-primary">保存设置</button>
+        </div>
+    </div>
+    
     <!-- 主应用页面 -->
     <div class="container" id="main-app">
         <!-- 顶部栏 -->
@@ -186,7 +224,7 @@
                 
                 <!-- 标签 -->
                 <div class="form-group">
-                    <label for="tags-input">标签（可选）</label>
+                    <label for="tag-input">标签（可选）</label>
                     <div class="tags-input-container">
                         <div class="tags-input" id="tags-input-container">
                             <!-- 标签将通过JavaScript动态生成 -->
@@ -265,11 +303,11 @@
             <h2 class="modal-title">手绘图片</h2>
             <div class="draw-toolbar">
                 <div class="draw-tool-group">
-                    <label>画笔颜色：</label>
+                    <label for="draw-color">画笔颜色：</label>
                     <input type="color" id="draw-color" value="#000000">
                 </div>
                 <div class="draw-tool-group">
-                    <label>画笔大小：</label>
+                    <label for="draw-size">画笔大小：</label>
                     <input type="range" id="draw-size" min="1" max="20" value="3">
                     <span id="draw-size-value">3</span>
                 </div>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语言设置保存功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-step {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-left-color: #28a745; }
+        .error { background: #f8d7da; border-left-color: #dc3545; }
+        .info { background: #d1ecf1; border-left-color: #17a2b8; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; }
+        
+        .test-link {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .test-link:hover {
+            background: #0056b3;
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        
+        .instruction {
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 语言设置保存功能测试</h1>
+    
+    <div class="result info">
+        <strong>🎯 测试目标：</strong>验证修复后的语言设置保存功能是否正常工作，不再出现JavaScript错误
+    </div>
+    
+    <div class="result error">
+        <strong>🐛 修复前的错误：</strong>
+        <div class="code-block">
+            script.js:936 Uncaught (in promise) ReferenceError: generateWordsTableHeader is not defined
+        </div>
+    </div>
+    
+    <div class="result success">
+        <strong>✅ 修复内容：</strong>
+        <ul>
+            <li>将不存在的 <code>generateWordsTableHeader()</code> 替换为 <code>updateWordsTable()</code></li>
+            <li>将不存在的 <code>renderWordsList()</code> 替换为 <code>updateCardsView()</code></li>
+            <li>使用现有的正确函数来更新界面</li>
+        </ul>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 1: 准备测试环境</div>
+        <p>首先确保有基本的语言设置和一些测试数据</p>
+        
+        <div class="instruction">
+            <strong>操作步骤：</strong>
+            <ol>
+                <li>打开首页，确保已设置母语和学习语言</li>
+                <li>添加一些测试单词（建议至少2-3个）</li>
+                <li>进入单词列表页面</li>
+            </ol>
+        </div>
+        
+        <a href="../index.html" class="test-link" target="_blank">🏠 打开首页</a>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 2: 测试语言设置保存功能</div>
+        <p>测试在单词列表页面修改并保存语言设置</p>
+        
+        <div class="instruction">
+            <strong>操作步骤：</strong>
+            <ol>
+                <li>打开单词列表页面</li>
+                <li>点击右上角的设置按钮（齿轮图标）</li>
+                <li>修改语言设置（例如：切换母语或添加/移除学习语言）</li>
+                <li><strong>关键测试：</strong>点击"保存设置"按钮</li>
+                <li>观察是否有JavaScript错误</li>
+            </ol>
+        </div>
+        
+        <a href="../words_list.html" class="test-link" target="_blank">📚 打开单词列表页面</a>
+        
+        <div class="instruction">
+            <strong>⚠️ 重要：</strong>打开浏览器开发者工具（F12）查看控制台，确保没有JavaScript错误
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 3: 验证功能正常性</div>
+        <p>确认保存设置后所有功能都正常工作</p>
+        
+        <div class="instruction">
+            <strong>验证清单：</strong>
+            <ul>
+                <li>☐ 点击"保存设置"按钮无JavaScript错误</li>
+                <li>☐ 成功返回单词列表页面</li>
+                <li>☐ 顶部语言显示正确更新</li>
+                <li>☐ 表格头部显示新的语言列</li>
+                <li>☐ 单词内容正确显示</li>
+                <li>☐ 如果切换了母语，看到数据迁移提示</li>
+                <li>☐ 卡片视图也正确更新（切换到卡片视图验证）</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 4: 边界情况测试</div>
+        <p>测试一些特殊情况确保功能稳定</p>
+        
+        <div class="instruction">
+            <strong>测试场景：</strong>
+            <ol>
+                <li><strong>母语切换：</strong>将母语从一种语言切换到另一种语言</li>
+                <li><strong>学习语言变更：</strong>添加或移除学习语言</li>
+                <li><strong>取消操作：</strong>修改设置后点击"取消"按钮</li>
+                <li><strong>重复操作：</strong>多次进入设置并保存</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">步骤 5: 开发者工具检查</div>
+        <p>使用浏览器开发者工具进行深度检查</p>
+        
+        <div class="instruction">
+            <strong>检查项目：</strong>
+            <ul>
+                <li><strong>控制台：</strong>确保没有错误信息</li>
+                <li><strong>网络：</strong>检查是否有请求失败</li>
+                <li><strong>应用：</strong>查看localStorage中的数据是否正确保存</li>
+            </ul>
+        </div>
+        
+        <div class="code-block">
+            // 在控制台中检查保存的设置
+            console.log('用户设置:', JSON.parse(localStorage.getItem('polyglotSettings')));
+            console.log('单词数据:', JSON.parse(localStorage.getItem('polyglotWords')));
+        </div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">测试结果</div>
+        <p>根据测试结果选择相应的状态：</p>
+        
+        <button onclick="showTestResult('success')" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin: 5px; cursor: pointer;">✅ 测试通过</button>
+        <button onclick="showTestResult('partial')" style="background: #ffc107; color: black; padding: 10px 20px; border: none; border-radius: 4px; margin: 5px; cursor: pointer;">⚠️ 部分问题</button>
+        <button onclick="showTestResult('failed')" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; margin: 5px; cursor: pointer;">❌ 测试失败</button>
+        
+        <div id="test-result-display"></div>
+    </div>
+
+    <script>
+        function showTestResult(status) {
+            const resultDiv = document.getElementById('test-result-display');
+            
+            switch(status) {
+                case 'success':
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <strong>🎉 测试通过！</strong>
+                            <p>语言设置保存功能已完全修复：</p>
+                            <ul>
+                                <li>✅ JavaScript错误已解决</li>
+                                <li>✅ 保存设置功能正常工作</li>
+                                <li>✅ 界面更新正确</li>
+                                <li>✅ 数据迁移功能正常</li>
+                                <li>✅ 用户体验良好</li>
+                            </ul>
+                            <p><strong>修复效果：</strong>用户现在可以在单词列表页面正常修改和保存语言设置！</p>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'partial':
+                    resultDiv.innerHTML = `
+                        <div class="result warning">
+                            <strong>⚠️ 部分问题</strong>
+                            <p>基本功能正常，但可能存在一些小问题：</p>
+                            <ul>
+                                <li>保存功能正常，但界面更新可能有延迟</li>
+                                <li>某些边界情况可能需要进一步优化</li>
+                                <li>用户体验基本满足需求</li>
+                            </ul>
+                            <p><strong>建议：</strong>记录具体问题，进行进一步优化</p>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'failed':
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <strong>❌ 测试失败</strong>
+                            <p>仍然存在问题，需要进一步修复：</p>
+                            <ul>
+                                <li>可能仍有JavaScript错误</li>
+                                <li>保存功能可能异常</li>
+                                <li>界面更新可能失败</li>
+                            </ul>
+                            <p><strong>建议：</strong></p>
+                            <ol>
+                                <li>检查浏览器控制台的具体错误信息</li>
+                                <li>确认所有相关函数都存在</li>
+                                <li>验证DOM元素是否正确初始化</li>
+                                <li>检查模块导入是否正确</li>
+                            </ol>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+        
+        // 页面加载时显示测试信息
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('语言设置保存功能测试页面已加载');
+            console.log('请按照步骤进行测试，并注意观察浏览器控制台');
+        });
+    </script>
+</body>
+</html>

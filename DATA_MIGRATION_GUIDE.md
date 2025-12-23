@@ -18,7 +18,7 @@
 
 如果自动迁移失败，可以使用调试工具：
 
-1. 访问 `debug_storage.html` 页面
+1. 访问 `debug/debug_storage.html` 页面
 2. 点击"检查当前数据"查看现状
 3. 点击"扫描所有可能的旧数据"查找旧数据
 4. 使用"执行自动数据迁移"或"手动迁移"功能
@@ -89,6 +89,6 @@
 ---
 
 **快速访问链接：**
-- [调试工具页面](debug_storage.html)
+- [调试工具页面](debug/debug_storage.html)
 - [返回首页](index.html)
 - [单词列表](words_list.html)

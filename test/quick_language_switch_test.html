@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速母语切换测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .result {
+            background: #f0f8ff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        
+        .word-display {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .native-note {
+            background: #fff3e0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .translation {
+            display: inline-block;
+            margin: 2px 5px;
+            padding: 2px 8px;
+            background: #e3f2fd;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>快速母语切换测试</h1>
+    
+    <div class="test-section">
+        <h2>测试说明</h2>
+        <p>这个页面用于快速测试母语切换功能是否正常工作。</p>
+        <p><strong>预期行为：</strong>当切换母语时，单词中该语言的内容应该变成母语注释。</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>1. 初始化测试数据</h2>
+        <button onclick="initTestData()">创建测试单词</button>
+        <button onclick="clearTestData()">清除测试数据</button>
+        <div id="init-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 当前状态</h2>
+        <div id="current-status">点击"刷新状态"查看当前设置和单词</div>
+        <button onclick="refreshStatus()">刷新状态</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 母语切换测试</h2>
+        <button onclick="testLanguageSwitch('zh')">测试切换到中文</button>
+        <button onclick="testLanguageSwitch('en')">测试切换到英语</button>
+        <button onclick="testLanguageSwitch('ko')">测试切换到韩语</button>
+        <div id="switch-result"></div>
+    </div>
+
+    <script type="module">
+        // 简化的测试，直接使用localStorage而不依赖复杂的模块系统
+        
+        // 测试数据
+        const testWords = [
+            {
+                id: 'test1',
+                translations: [
+                    { language: 'en', text: 'apple', phonetic: '/ˈæpəl/', example: 'I eat an apple.', audio: null },
+                    { language: 'zh', text: '苹果', phonetic: 'píng guǒ', example: '我吃苹果。', audio: null },
+                    { language: 'ko', text: '사과', phonetic: 'sagwa', example: '사과를 먹어요.', audio: null }
+                ],
+                nativeNote: '红色的水果',
+                image: null,
+                tags: ['水果', '食物']
+            }
+        ];
+        
+        let userSettings = {
+            nativeLanguage: 'zh',
+            learningLanguages: ['en', 'ko']
+        };
+        
+        // 语言信息
+        const languageInfo = {
+            zh: { code: 'zh', name: '中文', flag: '🇨🇳' },
+            en: { code: 'en', name: '英语', flag: '🇺🇸' },
+            ko: { code: 'ko', name: '韩语', flag: '🇰🇷' }
+        };
+        
+        // 初始化测试数据
+        window.initTestData = function() {
+            try {
+                localStorage.setItem('polyglotWords', JSON.stringify(testWords));
+                localStorage.setItem('polyglotSettings', JSON.stringify(userSettings));
+                
+                document.getElementById('init-result').innerHTML = 
+                    '<div class="result success">✅ 测试数据已创建</div>';
+                
+                refreshStatus();
+            } catch (error) {
+                document.getElementById('init-result').innerHTML = 
+                    `<div class="result error">❌ 创建失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 清除测试数据
+        window.clearTestData = function() {
+            localStorage.removeItem('polyglotWords');
+            localStorage.removeItem('polyglotSettings');
+            
+            document.getElementById('init-result').innerHTML = 
+                '<div class="result">🗑️ 测试数据已清除</div>';
+            
+            refreshStatus();
+        };
+        
+        // 刷新状态显示
+        window.refreshStatus = function() {
+            try {
+                const words = JSON.parse(localStorage.getItem('polyglotWords') || '[]');
+                const settings = JSON.parse(localStorage.getItem('polyglotSettings') || '{}');
+                
+                let html = '<h3>当前设置</h3>';
+                html += `<p><strong>母语:</strong> ${settings.nativeLanguage ? languageInfo[settings.nativeLanguage]?.name : '未设置'}</p>`;
+                html += `<p><strong>学习语言:</strong> ${settings.learningLanguages?.map(code => languageInfo[code]?.name).join(', ') || '未设置'}</p>`;
+                
+                html += '<h3>当前单词</h3>';
+                if (words.length === 0) {
+                    html += '<p>暂无单词</p>';
+                } else {
+                    words.forEach((word, index) => {
+                        html += '<div class="word-display">';
+                        html += `<strong>单词 ${index + 1}:</strong><br>`;
+                        
+                        // 显示翻译
+                        word.translations.forEach(t => {
+                            html += `<span class="translation">${languageInfo[t.language]?.flag} ${t.text}</span>`;
+                        });
+                        
+                        // 显示母语注释
+                        html += `<div class="native-note">母语注释: ${word.nativeNote || '无'}</div>`;
+                        html += '</div>';
+                    });
+                }
+                
+                document.getElementById('current-status').innerHTML = html;
+            } catch (error) {
+                document.getElementById('current-status').innerHTML = 
+                    `<div class="result error">❌ 状态读取失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 测试语言切换
+        window.testLanguageSwitch = function(newLanguageCode) {
+            try {
+                const words = JSON.parse(localStorage.getItem('polyglotWords') || '[]');
+                const settings = JSON.parse(localStorage.getItem('polyglotSettings') || '{}');
+                
+                if (words.length === 0) {
+                    document.getElementById('switch-result').innerHTML = 
+                        '<div class="result error">❌ 请先创建测试数据</div>';
+                    return;
+                }
+                
+                const previousNative = settings.nativeLanguage;
+                const newLanguageName = languageInfo[newLanguageCode]?.name;
+                const previousLanguageName = languageInfo[previousNative]?.name;
+                
+                let resultHtml = `<div class="result">🔄 开始测试切换: ${previousLanguageName} → ${newLanguageName}</div>`;
+                
+                // 执行语言切换逻辑
+                let migratedCount = 0;
+                
+                words.forEach(word => {
+                    let hasChanges = false;
+                    
+                    // 步骤1: 将原母语注释转换为翻译（如果原母语现在是学习语言）
+                    if (previousNative && 
+                        word.nativeNote && 
+                        settings.learningLanguages && 
+                        settings.learningLanguages.includes(previousNative)) {
+                        
+                        const existingTranslation = word.translations.find(t => t.language === previousNative);
+                        if (!existingTranslation) {
+                            word.translations.push({
+                                language: previousNative,
+                                text: word.nativeNote,
+                                phonetic: '',
+                                example: '',
+                                audio: null
+                            });
+                            hasChanges = true;
+                            resultHtml += `<div class="result">📝 将原母语注释 "${word.nativeNote}" 转换为 ${previousLanguageName} 翻译</div>`;
+                        }
+                    }
+                    
+                    // 步骤2: 将新母语的翻译设置为母语注释
+                    const nativeTranslation = word.translations.find(t => t.language === newLanguageCode);
+                    if (nativeTranslation && nativeTranslation.text) {
+                        const oldNote = word.nativeNote;
+                        word.nativeNote = nativeTranslation.text;
+                        word.translations = word.translations.filter(t => t.language !== newLanguageCode);
+                        hasChanges = true;
+                        resultHtml += `<div class="result">✅ 将 ${newLanguageName} 翻译 "${nativeTranslation.text}" 设置为母语注释</div>`;
+                        resultHtml += `<div class="result">📋 原母语注释: "${oldNote}" → 新母语注释: "${word.nativeNote}"</div>`;
+                    }
+                    
+                    if (hasChanges) {
+                        migratedCount++;
+                    }
+                });
+                
+                // 更新设置
+                settings.nativeLanguage = newLanguageCode;
+                if (!settings.learningLanguages.includes(newLanguageCode)) {
+                    // 确保新母语不在学习语言中
+                    settings.learningLanguages = settings.learningLanguages.filter(lang => lang !== newLanguageCode);
+                }
+                if (previousNative && !settings.learningLanguages.includes(previousNative)) {
+                    // 将原母语添加到学习语言中
+                    settings.learningLanguages.push(previousNative);
+                }
+                
+                // 保存更新后的数据
+                localStorage.setItem('polyglotWords', JSON.stringify(words));
+                localStorage.setItem('polyglotSettings', JSON.stringify(settings));
+                
+                resultHtml += `<div class="result success">🎉 切换完成！处理了 ${migratedCount} 个单词</div>`;
+                
+                document.getElementById('switch-result').innerHTML = resultHtml;
+                
+                // 刷新状态显示
+                setTimeout(refreshStatus, 500);
+                
+            } catch (error) {
+                document.getElementById('switch-result').innerHTML = 
+                    `<div class="result error">❌ 切换失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStatus();
+        });
+    </script>
+</body>
+</html>

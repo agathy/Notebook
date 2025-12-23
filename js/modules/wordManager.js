@@ -41,7 +41,7 @@ export function initWordManager(options) {
 }
 
 // 安全保存到 localStorage，处理配额超限错误
-function saveWordsToStorage() {
+export function saveWordsToStorage() {
     try {
         const wordsJson = JSON.stringify(words);
         localStorage.setItem('polyglotWords', wordsJson);

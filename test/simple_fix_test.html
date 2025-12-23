@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简单修复测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-left-color: #28a745; }
+        .error { background: #f8d7da; border-left-color: #dc3545; }
+        .info { background: #d1ecf1; border-left-color: #17a2b8; }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover { background: #0056b3; }
+        
+        .word-display {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <h1>简单修复测试</h1>
+    
+    <div>
+        <button onclick="runTest()">运行测试</button>
+        <button onclick="clearData()">清除数据</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script type="module">
+        // 简化测试，直接使用localStorage
+        
+        window.runTest = async function() {
+            const resultsDiv = document.getElementById('results');
+            let html = '<h2>测试结果</h2>';
+            
+            try {
+                // 1. 创建测试数据
+                const testWord = {
+                    id: 'test1',
+                    translations: [
+                        { language: 'en', text: 'apple', phonetic: '/ˈæpəl/', example: '', audio: null },
+                        { language: 'zh', text: '苹果', phonetic: 'píng guǒ', example: '', audio: null },
+                        { language: 'ko', text: '사과', phonetic: 'sagwa', example: '', audio: null }
+                    ],
+                    nativeNote: '红色的水果',
+                    image: null,
+                    tags: ['水果']
+                };
+                
+                const userSettings = {
+                    nativeLanguage: 'zh',
+                    learningLanguages: ['en', 'ko']
+                };
+                
+                localStorage.setItem('polyglotWords', JSON.stringify([testWord]));
+                localStorage.setItem('polyglotSettings', JSON.stringify(userSettings));
+                
+                html += '<div class="result success">✅ 测试数据创建成功</div>';
+                
+                // 2. 显示初始状态
+                html += '<div class="word-display">';
+                html += '<h3>初始状态（母语：中文）</h3>';
+                html += `<p><strong>母语注释：</strong>${testWord.nativeNote}</p>`;
+                html += '<p><strong>翻译：</strong>';
+                testWord.translations.forEach(t => {
+                    html += `${t.language}:${t.text} `;
+                });
+                html += '</p></div>';
+                
+                // 3. 尝试导入模块并执行迁移
+                try {
+                    const { migrateLanguageData } = await import('../js/modules/userSettings.js');
+                    const { words } = await import('../js/modules/wordManager.js');
+                    
+                    html += '<div class="result success">✅ 模块导入成功</div>';
+                    
+                    // 模拟切换到英语
+                    const previousNative = 'zh';
+                    
+                    // 更新设置（模拟切换）
+                    const newSettings = {
+                        nativeLanguage: 'en',
+                        learningLanguages: ['zh', 'ko']
+                    };
+                    localStorage.setItem('polyglotSettings', JSON.stringify(newSettings));
+                    
+                    // 执行迁移
+                    const result = await migrateLanguageData(previousNative);
+                    
+                    html += `<div class="result info">📋 迁移结果: ${result.message}</div>`;
+                    
+                    // 4. 显示迁移后状态
+                    const updatedWords = JSON.parse(localStorage.getItem('polyglotWords') || '[]');
+                    if (updatedWords.length > 0) {
+                        const updatedWord = updatedWords[0];
+                        html += '<div class="word-display">';
+                        html += '<h3>迁移后状态（母语：英语）</h3>';
+                        html += `<p><strong>母语注释：</strong>${updatedWord.nativeNote}</p>`;
+                        html += '<p><strong>翻译：</strong>';
+                        updatedWord.translations.forEach(t => {
+                            html += `${t.language}:${t.text} `;
+                        });
+                        html += '</p></div>';
+                        
+                        // 5. 验证结果
+                        if (updatedWord.nativeNote === 'apple') {
+                            html += '<div class="result success">✅ 母语注释正确更新为英语内容</div>';
+                        } else {
+                            html += '<div class="result error">❌ 母语注释未正确更新</div>';
+                        }
+                        
+                        const hasChineseTranslation = updatedWord.translations.some(t => 
+                            t.language === 'zh' && t.text === '红色的水果');
+                        if (hasChineseTranslation) {
+                            html += '<div class="result success">✅ 原母语注释正确转换为中文翻译</div>';
+                        } else {
+                            html += '<div class="result error">❌ 原母语注释未正确转换</div>';
+                        }
+                    }
+                    
+                } catch (moduleError) {
+                    html += `<div class="result error">❌ 模块导入或执行失败: ${moduleError.message}</div>`;
+                    console.error('Module error:', moduleError);
+                }
+                
+            } catch (error) {
+                html += `<div class="result error">❌ 测试失败: ${error.message}</div>`;
+                console.error('Test error:', error);
+            }
+            
+            resultsDiv.innerHTML = html;
+        };
+        
+        window.clearData = function() {
+            localStorage.removeItem('polyglotWords');
+            localStorage.removeItem('polyglotSettings');
+            document.getElementById('results').innerHTML = '<div class="result info">🗑️ 数据已清除</div>';
+        };
+    </script>
+</body>
+</html>

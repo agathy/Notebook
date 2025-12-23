@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最终双向迁移测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-step {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        .result {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-left-color: #28a745; }
+        .error { background: #f8d7da; border-left-color: #dc3545; }
+        .info { background: #d1ecf1; border-left-color: #17a2b8; }
+        .warning { background: #fff3cd; border-left-color: #ffc107; }
+        
+        button {
+            padding: 12px 24px;
+            margin: 8px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        .word-state {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .native-note {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            border-left: 4px solid #ff9800;
+            font-size: 16px;
+        }
+        
+        .translation {
+            display: inline-block;
+            margin: 5px 8px;
+            padding: 8px 14px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 20px;
+            font-size: 14px;
+            border: 2px solid #2196f3;
+            font-weight: 500;
+        }
+        
+        .step-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-number {
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .language-switch {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #dee2e6;
+        }
+        
+        .verification-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .verification-item {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .pass { background: #d4edda; border-color: #28a745; }
+        .fail { background: #f8d7da; border-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🔄 最终双向迁移测试</h1>
+    
+    <div class="result info">
+        <strong>🎯 测试目标：</strong>验证修复后的双向迁移逻辑是否完全解决了用户反馈的问题：
+        <br><em>"当语言a被设置为母语时,他的内容会变成母语注释,但当母语b被设置为学习语言时,母语注释中的内容不会保留到语言b里"</em>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">
+            <div class="step-number">1</div>
+            初始化测试环境
+        </div>
+        <p>创建一个包含中文母语注释和英语、韩语翻译的测试单词</p>
+        <button onclick="initializeTestEnvironment()">🚀 初始化测试</button>
+        <div id="init-result"></div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">
+            <div class="step-number">2</div>
+            第一次语言切换测试
+        </div>
+        <div class="language-switch">
+            <strong>切换：中文(母语) → 英语(母语)</strong>
+            <br>预期：英语翻译"apple"变成母语注释，中文注释"红色的水果"变成中文翻译
+        </div>
+        <button onclick="performLanguageSwitch('zh', 'en', 1)">🔄 执行第一次切换</button>
+        <div id="switch1-result"></div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">
+            <div class="step-number">3</div>
+            第二次语言切换测试
+        </div>
+        <div class="language-switch">
+            <strong>切换：英语(母语) → 韩语(母语)</strong>
+            <br>预期：韩语翻译"사과"变成母语注释，英语注释"apple"变成英语翻译
+        </div>
+        <button onclick="performLanguageSwitch('en', 'ko', 2)">🔄 执行第二次切换</button>
+        <div id="switch2-result"></div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">
+            <div class="step-number">4</div>
+            回归测试
+        </div>
+        <div class="language-switch">
+            <strong>切换：韩语(母语) → 中文(母语)</strong>
+            <br>预期：回到初始状态，所有数据完整保留
+        </div>
+        <button onclick="performLanguageSwitch('ko', 'zh', 3)">🔄 执行回归测试</button>
+        <div id="switch3-result"></div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">
+            <div class="step-number">5</div>
+            最终验证
+        </div>
+        <p>验证所有语言内容是否完整保留，双向迁移是否成功</p>
+        <button onclick="performFinalVerification()">✅ 执行最终验证</button>
+        <div id="final-result"></div>
+    </div>
+    
+    <div class="test-step">
+        <div class="step-title">
+            <div class="step-number">6</div>
+            清理
+        </div>
+        <button onclick="cleanupTest()">🗑️ 清理测试数据</button>
+        <div id="cleanup-result"></div>
+    </div>
+
+    <script type="module">
+        // 导入必要的模块
+        import { migrateLanguageData, userSettings, selectNativeLanguage } from '../js/modules/userSettings.js';
+        import { words, saveWordsToStorage } from '../js/modules/wordManager.js';
+        
+        let testWord = null;
+        let originalSettings = null;
+        let testResults = [];
+        
+        // 语言信息
+        const languageInfo = {
+            zh: { code: 'zh', name: '中文', flag: '🇨🇳' },
+            en: { code: 'en', name: '英语', flag: '🇺🇸' },
+            ko: { code: 'ko', name: '韩语', flag: '🇰🇷' }
+        };
+        
+        // 初始化测试环境
+        window.initializeTestEnvironment = async function() {
+            try {
+                // 保存原始设置
+                originalSettings = {
+                    nativeLanguage: userSettings.nativeLanguage,
+                    learningLanguages: [...userSettings.learningLanguages]
+                };
+                
+                // 设置测试环境
+                userSettings.nativeLanguage = 'zh';
+                userSettings.learningLanguages = ['en', 'ko'];
+                
+                // 创建测试单词
+                testWord = {
+                    id: 'bidirectional-test-word',
+                    translations: [
+                        { language: 'en', text: 'apple', phonetic: '/ˈæpəl/', example: 'I eat an apple.', audio: null },
+                        { language: 'ko', text: '사과', phonetic: 'sagwa', example: '사과를 먹어요.', audio: null }
+                    ],
+                    nativeNote: '红色的水果',
+                    image: null,
+                    tags: ['水果', '测试']
+                };
+                
+                // 添加到单词列表
+                const existingIndex = words.findIndex(w => w.id === testWord.id);
+                if (existingIndex >= 0) {
+                    words[existingIndex] = testWord;
+                } else {
+                    words.push(testWord);
+                }
+                
+                // 保存数据
+                saveWordsToStorage();
+                
+                let html = '<div class="result success">✅ 测试环境初始化成功</div>';
+                html += displayWordState('初始状态', testWord, userSettings);
+                
+                document.getElementById('init-result').innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('init-result').innerHTML = 
+                    `<div class="result error">❌ 初始化失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 执行语言切换
+        window.performLanguageSwitch = async function(fromLang, toLang, stepNumber) {
+            try {
+                const fromLangInfo = languageInfo[fromLang];
+                const toLangInfo = languageInfo[toLang];
+                const resultId = `switch${stepNumber}-result`;
+                
+                let html = `<h4>🔄 执行切换: ${fromLangInfo.name} → ${toLangInfo.name}</h4>`;
+                
+                // 记录切换前状态
+                const beforeState = {
+                    nativeNote: testWord.nativeNote,
+                    translations: JSON.parse(JSON.stringify(testWord.translations)),
+                    nativeLanguage: userSettings.nativeLanguage
+                };
+                
+                html += displayWordState('切换前', testWord, userSettings);
+                
+                // 执行语言切换
+                const previousNative = userSettings.nativeLanguage;
+                userSettings.nativeLanguage = toLang;
+                
+                // 更新学习语言列表
+                userSettings.learningLanguages = userSettings.learningLanguages.filter(lang => lang !== toLang);
+                if (!userSettings.learningLanguages.includes(fromLang)) {
+                    userSettings.learningLanguages.push(fromLang);
+                }
+                
+                // 执行数据迁移
+                const migrationResult = await migrateLanguageData(previousNative);
+                
+                html += `<div class="result info">📊 迁移结果: ${migrationResult.message}</div>`;
+                html += displayWordState('切换后', testWord, userSettings);
+                
+                // 验证关键点
+                const verifications = [];
+                
+                // 验证1: 新母语注释是否正确
+                const expectedNewNote = beforeState.translations.find(t => t.language === toLang)?.text;
+                if (expectedNewNote && testWord.nativeNote === expectedNewNote) {
+                    verifications.push({ 
+                        test: `新母语注释正确 (${expectedNewNote})`, 
+                        passed: true 
+                    });
+                } else {
+                    verifications.push({ 
+                        test: `新母语注释错误 (期望: ${expectedNewNote}, 实际: ${testWord.nativeNote})`, 
+                        passed: false 
+                    });
+                }
+                
+                // 验证2: 原母语注释是否转换为翻译
+                const originalNoteAsTranslation = testWord.translations.find(t => t.language === fromLang);
+                if (originalNoteAsTranslation && originalNoteAsTranslation.text === beforeState.nativeNote) {
+                    verifications.push({ 
+                        test: `原母语注释正确转换为${fromLangInfo.name}翻译 (${beforeState.nativeNote})`, 
+                        passed: true 
+                    });
+                } else {
+                    verifications.push({ 
+                        test: `原母语注释转换失败`, 
+                        passed: false 
+                    });
+                }
+                
+                // 验证3: 其他翻译是否保留
+                const otherLanguages = ['zh', 'en', 'ko'].filter(lang => lang !== toLang);
+                otherLanguages.forEach(lang => {
+                    const beforeTranslation = beforeState.translations.find(t => t.language === lang);
+                    const afterTranslation = testWord.translations.find(t => t.language === lang);
+                    
+                    if (lang === fromLang) {
+                        // 原母语应该有新的翻译（原母语注释）
+                        if (afterTranslation && afterTranslation.text === beforeState.nativeNote) {
+                            verifications.push({ 
+                                test: `${languageInfo[lang].name}翻译正确保留`, 
+                                passed: true 
+                            });
+                        }
+                    } else {
+                        // 其他语言翻译应该保持不变
+                        if (beforeTranslation && afterTranslation && beforeTranslation.text === afterTranslation.text) {
+                            verifications.push({ 
+                                test: `${languageInfo[lang].name}翻译正确保留 (${afterTranslation.text})`, 
+                                passed: true 
+                            });
+                        } else if (!beforeTranslation && !afterTranslation) {
+                            verifications.push({ 
+                                test: `${languageInfo[lang].name}翻译状态正确`, 
+                                passed: true 
+                            });
+                        } else {
+                            verifications.push({ 
+                                test: `${languageInfo[lang].name}翻译状态异常`, 
+                                passed: false 
+                            });
+                        }
+                    }
+                });
+                
+                // 显示验证结果
+                html += '<div class="verification-grid">';
+                verifications.forEach(v => {
+                    html += `<div class="verification-item ${v.passed ? 'pass' : 'fail'}">
+                        ${v.passed ? '✅' : '❌'} ${v.test}
+                    </div>`;
+                });
+                html += '</div>';
+                
+                // 记录测试结果
+                testResults.push({
+                    step: stepNumber,
+                    switch: `${fromLangInfo.name} → ${toLangInfo.name}`,
+                    passed: verifications.every(v => v.passed),
+                    verifications: verifications
+                });
+                
+                document.getElementById(resultId).innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById(`switch${stepNumber}-result`).innerHTML = 
+                    `<div class="result error">❌ 切换失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 最终验证
+        window.performFinalVerification = function() {
+            try {
+                let html = '<h3>🔍 最终验证结果</h3>';
+                
+                const allPassed = testResults.every(r => r.passed);
+                
+                if (allPassed) {
+                    html += '<div class="result success">🎉 <strong>所有测试通过！双向迁移功能完全正常</strong></div>';
+                } else {
+                    html += '<div class="result error">❌ <strong>部分测试失败，需要进一步检查</strong></div>';
+                }
+                
+                // 详细结果
+                html += '<h4>详细测试结果：</h4>';
+                testResults.forEach(result => {
+                    html += `<div class="result ${result.passed ? 'success' : 'error'}">`;
+                    html += `<strong>步骤 ${result.step}: ${result.switch}</strong> - ${result.passed ? '✅ 通过' : '❌ 失败'}`;
+                    html += '</div>';
+                });
+                
+                // 最终状态验证
+                html += '<h4>最终状态验证：</h4>';
+                
+                const finalChecks = [
+                    {
+                        name: '母语设置正确',
+                        check: userSettings.nativeLanguage === 'zh',
+                        expected: '中文',
+                        actual: languageInfo[userSettings.nativeLanguage]?.name
+                    },
+                    {
+                        name: '母语注释正确',
+                        check: testWord.nativeNote === '红色的水果',
+                        expected: '红色的水果',
+                        actual: testWord.nativeNote
+                    },
+                    {
+                        name: '英语翻译保留',
+                        check: testWord.translations.some(t => t.language === 'en' && t.text === 'apple'),
+                        expected: 'apple',
+                        actual: testWord.translations.find(t => t.language === 'en')?.text || '无'
+                    },
+                    {
+                        name: '韩语翻译保留',
+                        check: testWord.translations.some(t => t.language === 'ko' && t.text === '사과'),
+                        expected: '사과',
+                        actual: testWord.translations.find(t => t.language === 'ko')?.text || '无'
+                    }
+                ];
+                
+                html += '<div class="verification-grid">';
+                finalChecks.forEach(check => {
+                    html += `<div class="verification-item ${check.check ? 'pass' : 'fail'}">
+                        ${check.check ? '✅' : '❌'} ${check.name}<br>
+                        <small>期望: ${check.expected} | 实际: ${check.actual}</small>
+                    </div>`;
+                });
+                html += '</div>';
+                
+                const finalPassed = finalChecks.every(c => c.check);
+                
+                if (finalPassed && allPassed) {
+                    html += '<div class="result success"><strong>🚀 双向迁移修复完全成功！用户反馈的问题已彻底解决！</strong></div>';
+                } else {
+                    html += '<div class="result error"><strong>⚠️ 仍存在问题，需要进一步调试</strong></div>';
+                }
+                
+                document.getElementById('final-result').innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('final-result').innerHTML = 
+                    `<div class="result error">❌ 验证失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 清理测试
+        window.cleanupTest = function() {
+            try {
+                // 移除测试单词
+                const testIndex = words.findIndex(w => w.id === 'bidirectional-test-word');
+                if (testIndex >= 0) {
+                    words.splice(testIndex, 1);
+                    saveWordsToStorage();
+                }
+                
+                // 恢复原始设置
+                if (originalSettings) {
+                    userSettings.nativeLanguage = originalSettings.nativeLanguage;
+                    userSettings.learningLanguages = [...originalSettings.learningLanguages];
+                }
+                
+                // 清空结果
+                testResults = [];
+                
+                document.getElementById('cleanup-result').innerHTML = 
+                    '<div class="result success">✅ 测试数据已清理，设置已恢复</div>';
+                
+                // 清空所有结果显示
+                ['init-result', 'switch1-result', 'switch2-result', 'switch3-result', 'final-result'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '';
+                });
+                
+            } catch (error) {
+                document.getElementById('cleanup-result').innerHTML = 
+                    `<div class="result error">❌ 清理失败: ${error.message}</div>`;
+            }
+        };
+        
+        // 显示单词状态的辅助函数
+        function displayWordState(title, word, settings) {
+            const nativeLang = languageInfo[settings.nativeLanguage];
+            
+            let html = `<div class="word-state">`;
+            html += `<h4>${title}</h4>`;
+            html += `<p><strong>当前母语:</strong> ${nativeLang ? `${nativeLang.flag} ${nativeLang.name}` : '未设置'}</p>`;
+            html += `<p><strong>学习语言:</strong> ${settings.learningLanguages.map(code => languageInfo[code]?.name).join(', ')}</p>`;
+            
+            html += `<div class="native-note">母语注释: ${word.nativeNote || '无'}</div>`;
+            
+            html += '<p><strong>翻译:</strong></p>';
+            if (word.translations.length > 0) {
+                word.translations.forEach(t => {
+                    const lang = languageInfo[t.language];
+                    html += `<span class="translation">${lang?.flag} ${lang?.name}: ${t.text}</span>`;
+                });
+            } else {
+                html += '<span style="color: #666;">无翻译</span>';
+            }
+            
+            html += '</div>';
+            
+            return html;
+        }
+    </script>
+</body>
+</html>

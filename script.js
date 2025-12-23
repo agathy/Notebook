@@ -56,21 +56,22 @@ import {
 } from './js/modules/wordManager.js';
 import { CardStackManager } from './js/modules/cardStackManager.js';
 import { performDataMigration } from './js/modules/dataMigration.js';
-
-// 语言配置
-const availableLanguages = [
-    { code: 'zh', name: '中文', flag: '🇨🇳', color: '#dc2626' },
-    { code: 'en', name: '英语', flag: '🇺🇸', color: '#3b82f6' },
-    { code: 'ko', name: '韩语', flag: '🇰🇷', color: '#1e40af' },
-    { code: 'es', name: '西班牙语', flag: '🇪🇸', color: '#ef4444' }
-];
-
-// 用户设置
-let userSettings = {
-    nativeLanguage: null,
-    learningLanguages: []
-};
-window.userSettings = userSettings;
+import {
+    initUserSettings,
+    userSettings,
+    availableLanguages,
+    updateUserLanguagesDisplay,
+    updateSelectedLanguagesDisplay,
+    generateLanguageInputs,
+    saveSettingsToStorage,
+    selectNativeLanguage,
+    toggleLearningLanguage,
+    getUserSettings,
+    getLanguageInfo,
+    reinitLanguageSelection,
+    migrateLanguageData
+} from './js/modules/userSettings.js';
+import { logger } from './js/modules/config.js';
 
 // 检测当前页面
 const isWordsListPage = window.location.pathname.includes('words_list.html');
@@ -585,155 +586,8 @@ function updateWordsTable() {
     });
 }
 
-// 初始化语言选择
-function initLanguageSelection() {
-    // 如果是单词列表页面，不需要显示语言选择页面
-    if (isWordsListPage) {
-        // 检查是否有已保存的设置
-        const savedSettings = localStorage.getItem('polyglotSettings');
-        if (savedSettings) {
-            try {
-                const parsedSettings = JSON.parse(savedSettings);
-                userSettings = parsedSettings;
-                window.userSettings = userSettings;
-                showMainApp();
-            } catch (e) {
-                console.error('解析设置失败:', e);
-            }
-        }
-        return;
-    }
-    
-    // 首页：初始化语言选择
-    if (nativeLanguageOptionsEl && learningLanguageOptionsEl) {
-        // 清空语言选项
-        nativeLanguageOptionsEl.innerHTML = '';
-        learningLanguageOptionsEl.innerHTML = '';
-        
-        // 生成母语选项
-        availableLanguages.forEach(language => {
-            const langEl = createLanguageOption(language, 'native');
-            nativeLanguageOptionsEl.appendChild(langEl);
-        });
-        
-        // 生成学习语言选项
-        availableLanguages.forEach(language => {
-            const langEl = createLanguageOption(language, 'learning');
-            learningLanguageOptionsEl.appendChild(langEl);
-        });
-    }
-    
-    // 检查是否有已保存的设置
-    const savedSettings = localStorage.getItem('polyglotSettings');
-    if (savedSettings) {
-        try {
-            const parsedSettings = JSON.parse(savedSettings);
-            userSettings = parsedSettings;
-            window.userSettings = userSettings;
-            
-            // 如果有设置，直接进入主应用
-            showMainApp();
-        } catch (e) {
-            console.error('解析设置失败:', e);
-        }
-    }
-}
-
-// 创建语言选项
-function createLanguageOption(language, type) {
-    const div = document.createElement('div');
-    div.className = `language-option language-${language.code}`;
-    div.dataset.code = language.code;
-    
-    div.innerHTML = `
-        <div class="language-icon">${language.flag}</div>
-        <div class="language-name">${language.name}</div>
-        <div class="language-code">${language.code.toUpperCase()}</div>
-    `;
-    
-    // 添加点击事件
-    div.addEventListener('click', () => {
-        if (type === 'native') {
-            selectNativeLanguage(language.code);
-        } else {
-            toggleLearningLanguage(language.code);
-        }
-    });
-    
-    return div;
-}
-
-// 选择母语
-function selectNativeLanguage(languageCode) {
-    // 移除所有已选中的母语
-    document.querySelectorAll('#native-language-options .language-option').forEach(el => {
-        el.classList.remove('selected');
-    });
-    
-    // 选中当前点击的语言
-    const selectedEl = document.querySelector(`#native-language-options .language-option[data-code="${languageCode}"]`);
-    if (selectedEl) {
-        selectedEl.classList.add('selected');
-        userSettings.nativeLanguage = languageCode;
-    }
-}
-
-// 切换学习语言
-function toggleLearningLanguage(languageCode) {
-    const langIndex = userSettings.learningLanguages.indexOf(languageCode);
-    const langEl = document.querySelector(`#learning-language-options .language-option[data-code="${languageCode}"]`);
-    
-    if (langIndex === -1) {
-        // 添加语言
-        userSettings.learningLanguages.push(languageCode);
-        if (langEl) {
-            langEl.classList.add('selected');
-        }
-    } else {
-        // 移除语言
-        userSettings.learningLanguages.splice(langIndex, 1);
-        if (langEl) {
-            langEl.classList.remove('selected');
-        }
-    }
-    
-    // 更新已选语言显示
-    updateSelectedLanguagesDisplay();
-}
-
-// 更新已选语言显示
-function updateSelectedLanguagesDisplay() {
-    if (!selectedLanguagesEl) return;
-    
-    selectedLanguagesEl.innerHTML = '';
-    
-    if (userSettings.learningLanguages.length === 0) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.innerHTML = `
-            <div style="color: #94a3b8; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center;">
-                请从上方选择语言
-            </div>
-        `;
-        selectedLanguagesEl.appendChild(emptyDiv);
-        return;
-    }
-    
-    userSettings.learningLanguages.forEach(langCode => {
-        const language = availableLanguages.find(l => l.code === langCode);
-        if (language) {
-            const tag = document.createElement('div');
-            tag.className = 'selected-language-tag';
-            tag.innerHTML = `
-                ${language.flag} ${language.name}
-            `;
-            
-            selectedLanguagesEl.appendChild(tag);
-        }
-    });
-}
-
 // 显示主应用
-function showMainApp() {
+export function showMainApp() {
     // 隐藏语言设置页面（如果存在）
     if (languageSetupEl) {
         languageSetupEl.style.display = 'none';
@@ -749,123 +603,6 @@ function showMainApp() {
     
     // 生成添加单词表单的语言输入框
     generateLanguageInputs();
-}
-
-// 更新用户语言显示
-function updateUserLanguagesDisplay() {
-    if (!userLanguagesDisplayEl) return;
-    
-    userLanguagesDisplayEl.innerHTML = '';
-    
-    // 添加母语
-    const nativeLang = availableLanguages.find(l => l.code === userSettings.nativeLanguage);
-    if (nativeLang) {
-        const tag = document.createElement('div');
-        tag.className = 'user-lang-tag native-tag';
-        tag.innerHTML = `${nativeLang.flag} ${nativeLang.name} (母语)`;
-        userLanguagesDisplayEl.appendChild(tag);
-    }
-    
-    // 添加学习语言
-    userSettings.learningLanguages.forEach(langCode => {
-        const language = availableLanguages.find(l => l.code === langCode);
-        if (language) {
-            const tag = document.createElement('div');
-            tag.className = 'user-lang-tag';
-            tag.innerHTML = `${language.flag} ${language.name}`;
-            userLanguagesDisplayEl.appendChild(tag);
-        }
-    });
-}
-
-// 生成语言输入框
-function generateLanguageInputs() {
-    if (!languageInputsContainerEl) return;
-    
-    languageInputsContainerEl.innerHTML = '';
-    
-    // 为每个学习语言生成输入框
-    userSettings.learningLanguages.forEach(langCode => {
-        const language = availableLanguages.find(l => l.code === langCode);
-        if (language) {
-            const inputGroup = document.createElement('div');
-            inputGroup.className = 'language-input-group';
-            
-            inputGroup.innerHTML = `
-                <div class="language-input-label">
-                    <span class="language-input-flag" style="background-color: ${language.color}">${language.code.toUpperCase()}</span>
-                    <span>${language.name}</span>
-                    <button type="button" class="language-expand-btn" data-lang="${langCode}">
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                </div>
-                <div class="language-word-input-wrapper">
-                    <input type="text" class="form-control language-word-input" 
-                           id="${langCode}-word" 
-                           data-lang="${langCode}"
-                           placeholder="输入${language.name}单词（可选）">
-                    <div class="word-input-actions">
-                        <button type="button" class="play-audio-input-btn" id="${langCode}-play-audio" data-lang="${langCode}" title="播放发音" style="display: none;">
-                            <i class="fas fa-volume-up"></i>
-                        </button>
-                        <button type="button" class="record-audio-btn" id="${langCode}-record-audio" data-lang="${langCode}" title="录音">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <span class="user-audio-badge-input" id="${langCode}-audio-badge" style="display: none;" title="已录音">🎤</span>
-                    </div>
-                    <div class="auto-translate-actions" id="${langCode}-translate-actions" style="display: none;">
-                        <button type="button" class="accept-translate-btn" data-lang="${langCode}" title="接受翻译">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button type="button" class="reject-translate-btn" data-lang="${langCode}" title="拒绝翻译">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="language-extra-fields" id="${langCode}-extra-fields" style="display: none;">
-                    <input type="text" class="form-control language-phonetic-input" 
-                           id="${langCode}-phonetic" 
-                           data-lang="${langCode}"
-                           placeholder="音标（可选）">
-                    <textarea class="form-control language-example-input" 
-                           id="${langCode}-example" 
-                           data-lang="${langCode}"
-                           placeholder="例句（可选）"></textarea>
-                </div>
-            `;
-            
-            languageInputsContainerEl.appendChild(inputGroup);
-        }
-    });
-    
-    // 添加展开/折叠按钮事件
-    setTimeout(() => {
-        document.querySelectorAll('.language-expand-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const langCode = this.getAttribute('data-lang');
-                const extraFields = document.getElementById(`${langCode}-extra-fields`);
-                const icon = this.querySelector('i');
-                
-                if (extraFields) {
-                    if (extraFields.style.display === 'none') {
-                        extraFields.style.display = 'block';
-                        icon.classList.remove('fa-chevron-down');
-                        icon.classList.add('fa-chevron-up');
-                    } else {
-                        extraFields.style.display = 'none';
-                        icon.classList.remove('fa-chevron-up');
-                        icon.classList.add('fa-chevron-down');
-                    }
-                }
-            });
-        });
-        
-        // 添加自动翻译功能
-        setupAutoTranslate();
-        
-        // 添加发音和录音功能
-        setupAudioFeatures();
-    }, 100);
 }
 
 // 显示单词卡片
@@ -1106,19 +843,16 @@ if (startAppBtn) {
 // 设置按钮点击事件
 if (settingsBtn) {
     settingsBtn.addEventListener('click', () => {
-        // 如果是单词列表页面，跳转到首页
-        if (isWordsListPage) {
-            window.location.href = 'index.html';
-            return;
-        }
-        
-        // 首页：切换到语言设置页面
+        // 统一处理：显示语言设置页面
         if (mainAppEl) {
             mainAppEl.style.display = 'none';
         }
         if (languageSetupEl) {
             languageSetupEl.style.display = 'block';
         }
+        
+        // 重新生成语言选项（确保在单词列表页面也能正常工作）
+        reinitLanguageSelection();
         
         // 预选已保存的语言
         if (userSettings.nativeLanguage && nativeLanguageOptionsEl) {
@@ -1142,6 +876,83 @@ if (settingsBtn) {
         
         // 关闭单词卡片
         closeWordCard();
+    });
+}
+
+// 取消设置按钮事件
+const cancelSettingsBtn = document.getElementById('cancel-settings');
+if (cancelSettingsBtn) {
+    cancelSettingsBtn.addEventListener('click', () => {
+        // 返回主应用页面
+        if (languageSetupEl) {
+            languageSetupEl.style.display = 'none';
+        }
+        if (mainAppEl) {
+            mainAppEl.style.display = 'block';
+        }
+    });
+}
+
+// 保存设置按钮事件
+const saveSettingsBtn = document.getElementById('save-settings');
+if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener('click', async () => {
+        // 验证设置
+        if (!userSettings.nativeLanguage) {
+            showMessage('请选择您的母语', 'error');
+            return;
+        }
+        
+        if (userSettings.learningLanguages.length === 0) {
+            showMessage('请至少选择一种学习语言', 'error');
+            return;
+        }
+        
+        // 记录之前的母语（用于数据迁移）
+        const previousNativeLanguage = JSON.parse(localStorage.getItem('polyglotSettings') || '{}').nativeLanguage;
+        
+        // 保存设置到本地存储
+        saveSettingsToStorage();
+        
+        // 如果母语发生了变化，执行数据迁移
+        if (previousNativeLanguage && previousNativeLanguage !== userSettings.nativeLanguage) {
+            try {
+                const result = await migrateLanguageData(previousNativeLanguage);
+                if (result.migratedCount > 0) {
+                    showMessage(result.message, 'success');
+                }
+            } catch (error) {
+                console.error('数据迁移失败:', error);
+                showMessage('语言设置已保存，但数据迁移可能存在问题', 'warning');
+            }
+        }
+        
+        // 更新用户语言显示
+        updateUserLanguagesDisplay();
+        
+        // 如果在单词列表页面，重新生成表格
+        if (isWordsListPage) {
+            // 重新生成表格（包括表头和内容）
+            updateWordsTable();
+            // 更新卡片视图
+            updateCardsView();
+        } else {
+            // 首页：重新生成语言输入框
+            const languageInputsContainerEl = document.getElementById('language-inputs-container');
+            if (languageInputsContainerEl) {
+                generateLanguageInputs(languageInputsContainerEl);
+            }
+        }
+        
+        // 返回主应用页面
+        if (languageSetupEl) {
+            languageSetupEl.style.display = 'none';
+        }
+        if (mainAppEl) {
+            mainAppEl.style.display = 'block';
+        }
+        
+        showMessage('语言设置已保存！', 'success');
     });
 }
 
@@ -1646,8 +1457,23 @@ document.addEventListener('DOMContentLoaded', function() {
         loadWords: loadWordsCallback
     });
     
-    // 初始化语言选择
-    initLanguageSelection();
+    // 初始化用户设置（替换原来的initLanguageSelection）
+    const languageSetupEl = document.getElementById('language-setup');
+    const mainAppEl = document.getElementById('main-app');
+    const nativeLanguageOptionsEl = document.getElementById('native-language-options');
+    const learningLanguageOptionsEl = document.getElementById('learning-language-options');
+    const selectedLanguagesEl = document.getElementById('selected-languages');
+    const startAppBtn = document.getElementById('start-app');
+    
+    initUserSettings({
+        showMessage: showMessage,
+        nativeLanguageOptionsEl: nativeLanguageOptionsEl,
+        learningLanguageOptionsEl: learningLanguageOptionsEl,
+        selectedLanguagesEl: selectedLanguagesEl,
+        startAppBtn: startAppBtn,
+        languageSetupEl: languageSetupEl,
+        mainAppEl: mainAppEl
+    });
     
     // 初始化图片管理器
     initImageManager({
@@ -1677,6 +1503,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // 回调函数
         showMessage: showMessage
     });
+    
+    // 初始化自动翻译功能
+    setupAutoTranslate();
+    
+    // 初始化音频功能
+    setupAudioFeatures();
     
     // 初始化卡片控制
     setupCardControls();
